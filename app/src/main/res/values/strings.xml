@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">BookNest</string>
+
+    <!-- SignUp Screen -->
+    <string name="signup_title">Sign Up</string>
+    <string name="signup_label_full_name">Full Name</string>
+    <string name="signup_label_email">Email</string>
+    <string name="signup_label_mobile_number">Mobile Number</string>
+    <string name="signup_btn_send_otp">Send OTP</string>
+    <string name="signup_loading">Loading...</string>
+
+    <!-- VerifyOtp Screen -->
+    <string name="verify_otp_title">Verify Mobile Number</string>
+    <string name="verify_otp_subtitle">OTP has been sent to you on your mobile number, please enter it below</string>
+    <string name="verify_otp_btn_verify">Verify OTP</string>
+    <string name="verify_otp_btn_resend">Resend OTP</string>
+    <string name="verify_otp_btn_resend_timer">Resend OTP (%1$s)</string>
+    <string name="verify_otp_btn_edit_phone">Edit Phone Number</string>
+    <string name="verify_otp_loading">Verifying</string>
 </resources>

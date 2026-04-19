@@ -3,7 +3,6 @@ package rahulstech.android.booknest.ui.screen.signup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -18,7 +17,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -27,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import rahulstech.android.booknest.R
+import rahulstech.android.booknest.ui.component.LoadingOverlay
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 
 // ── Brand colors ──────────────────────────────────────────────────────────────
@@ -64,7 +65,7 @@ fun SignUpScreen(
 
             // ── Title ────────────────────────────────────────────────────────
             Text(
-                text = "Sign Up",
+                text = stringResource(R.string.signup_title),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimary,
@@ -82,7 +83,7 @@ fun SignUpScreen(
                         ambientColor = Color(0x40000000),
                         spotColor   = Color(0x40000000)
                     ),
-                shape = RoundedCornerShape(20.dp),
+                shape = MaterialTheme.shapes.small,
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
@@ -97,7 +98,7 @@ fun SignUpScreen(
                     SignUpTextField(
                         value        = fullName,
                         onValueChange = { fullName = it },
-                        label        = "Full Name",
+                        label        = stringResource(R.string.signup_label_full_name),
                         icon         = Icons.Outlined.AccountCircle,
                         keyboardType = KeyboardType.Text,
                         enabled      = !isLoading
@@ -107,7 +108,7 @@ fun SignUpScreen(
                     SignUpTextField(
                         value        = email,
                         onValueChange = { email = it },
-                        label        = "Email",
+                        label        = stringResource(R.string.signup_label_email),
                         icon         = Icons.Outlined.Email,
                         keyboardType = KeyboardType.Email,
                         enabled      = !isLoading
@@ -117,7 +118,7 @@ fun SignUpScreen(
                     SignUpTextField(
                         value        = mobileNumber,
                         onValueChange = { if (it.length <= 10) mobileNumber = it },
-                        label        = "Mobile Number",
+                        label        = stringResource(R.string.signup_label_mobile_number),
                         icon         = Icons.Outlined.Phone,
                         keyboardType = KeyboardType.Phone,
                         enabled      = !isLoading
@@ -140,30 +141,10 @@ fun SignUpScreen(
         }
 
         // ── Full Screen Loading Overlay ───────────────────────────────────────
-        if (isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.4f))
-                    .pointerInput(Unit) { /* Block interactions */ },
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator(
-                        strokeWidth = 4.dp,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Loading",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-        }
+        LoadingOverlay(
+            show = isLoading,
+            message = stringResource(R.string.signup_loading)
+        )
     }
 }
 
@@ -219,7 +200,7 @@ private fun SendOtpButton(
         enabled  = enabled && !isLoading,
     ) {
         Text(
-            text       = "Send OTP",
+            text       = stringResource(R.string.signup_btn_send_otp),
             fontSize   = 16.sp,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.5.sp
