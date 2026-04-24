@@ -75,39 +75,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 // ---------------------------------------------------------------------------
-// Data model
-// ---------------------------------------------------------------------------
-
-data class Place(val name: String, val imageUrl: String)
-
-private val samplePlaces = listOf(
-    Place(
-        name     = "Agra",
-        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/1200px-Taj_Mahal_%28Edited%29.jpeg"
-    ),
-    Place(
-        name     = "Bengaluru",
-        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/KR_Puram_Bridge.jpg/1200px-KR_Puram_Bridge.jpg"
-    ),
-    Place(
-        name     = "Chennai",
-        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Chennai_Montage.jpg/800px-Chennai_Montage.jpg"
-    ),
-    Place(
-        name     = "Delhi",
-        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/India_Gate_in_New_Delhi_03-2016.jpg/1200px-India_Gate_in_New_Delhi_03-2016.jpg"
-    ),
-    Place(
-        name     = "Mumbai",
-        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Mumbai_03-2016_30_Gateway_of_India.jpg/1200px-Mumbai_03-2016_30_Gateway_of_India.jpg"
-    ),
-)
-
-private val locationOptions = listOf(
-    "Agra", "Bengaluru", "Chennai", "Delhi", "Mumbai", "Kolkata", "Jaipur"
-)
-
-// ---------------------------------------------------------------------------
 // Screen
 // ---------------------------------------------------------------------------
 
@@ -126,6 +93,8 @@ private val DATE_FORMAT = DateTimeFormatter.ofPattern("d/M/yyyy")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FindRoomScreen(
+    locations: List<String>,
+    places: List<Place> = emptyList(),
     onLogout: () -> Unit = {},
     onSearch: (location: String, checkIn: LocalDate, checkOut: LocalDate, rooms: Int) -> Unit = { _, _, _, _ -> },
     onViewAll: () -> Unit = {},
@@ -226,7 +195,7 @@ fun FindRoomScreen(
                             onDismissRequest = { locationDropdownExpanded = false },
                             modifier         = Modifier.widthIn(max = 300.dp).background(MaterialTheme.colorScheme.surfaceVariant),
                         ) {
-                            locationOptions.forEach { city ->
+                            locations.forEach { city ->
                                 DropdownMenuItem(
                                     text    = {
                                         Text(
@@ -334,7 +303,10 @@ fun FindRoomScreen(
             // Horizontal place cards
             // ---------------------------------------------------------------
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(samplePlaces) { place ->
+                items(
+                    items = places,
+                    key = { it.id }
+                ) { place ->
                     PlaceCard(place = place)
                 }
             }
@@ -560,11 +532,46 @@ private fun PlaceCard(place: Place) {
 // Previews
 // ---------------------------------------------------------------------------
 
+private val sampleLocations = listOf(
+    "Agra", "Bengaluru", "Chennai", "Delhi", "Mumbai", "Kolkata", "Jaipur"
+)
+
+private val samplePlaces = listOf(
+    Place(
+        id = "place-1",
+        name     = "Agra",
+        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/1200px-Taj_Mahal_%28Edited%29.jpeg"
+    ),
+    Place(
+        id = "place-2",
+        name     = "Bengaluru",
+        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/KR_Puram_Bridge.jpg/1200px-KR_Puram_Bridge.jpg"
+    ),
+    Place(
+        id = "place-3",
+        name     = "Chennai",
+        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Chennai_Montage.jpg/800px-Chennai_Montage.jpg"
+    ),
+    Place(
+        id = "place-4",
+        name     = "Delhi",
+        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/India_Gate_in_New_Delhi_03-2016.jpg/1200px-India_Gate_in_New_Delhi_03-2016.jpg"
+    ),
+    Place(
+        id = "place-5",
+        name     = "Mumbai",
+        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Mumbai_03-2016_30_Gateway_of_India.jpg/1200px-Mumbai_03-2016_30_Gateway_of_India.jpg"
+    ),
+)
+
 @Preview(name = "FindRoom – Empty", showBackground = true, showSystemUi = true)
 @Composable
 private fun FindRoomEmptyPreview() {
     BookNestTheme {
-        FindRoomScreen()
+        FindRoomScreen(
+            locations = sampleLocations,
+            places = samplePlaces
+        )
     }
 }
 

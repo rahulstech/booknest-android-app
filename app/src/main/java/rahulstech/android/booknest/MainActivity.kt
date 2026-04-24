@@ -4,14 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
@@ -23,7 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import rahulstech.android.booknest.ui.screen.findroom.FindRoomScreen
+import rahulstech.android.booknest.ui.screen.selecthotel.FindHotelItem
+import rahulstech.android.booknest.ui.screen.selecthotel.SelectHotelScreen
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 
 class MainActivity : ComponentActivity() {
@@ -60,7 +58,100 @@ fun BookNestApp() {
             }
         }
     ) {
-        FindRoomScreen()
+        SelectHotelScreen(hotels = listOf(
+            FindHotelItem(
+                id = "hotel-1",
+                hotelName = "Fairfield Hotel",
+                cityName = "Agra",
+                priceMin = 4_999,
+                priceMax = 9_999,
+                isSoldOut = false,
+                imageUrl = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+            ),
+            FindHotelItem(
+                id = "hotel-2",
+                hotelName = "Oberoi Hotel",
+                cityName = "Agra",
+                isSoldOut = true,
+                imageUrl = "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800",
+            ),
+            FindHotelItem(
+                id = "hotel-12",
+                hotelName = "Taj Hotel",
+                cityName = "Agra",
+                isSoldOut = true,
+                imageUrl = "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800",
+            ),
+            FindHotelItem(
+                id = "hotel-3",
+                hotelName = "Fairfield Hotel",
+                cityName = "Agra",
+                priceMin = 4_999,
+                priceMax = 9_999,
+                isSoldOut = false,
+                imageUrl = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+            ),
+            FindHotelItem(
+                id = "hotel-4",
+                hotelName = "Oberoi Hotel",
+                cityName = "Agra",
+                isSoldOut = true,
+                imageUrl = "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800",
+            ),
+            FindHotelItem(
+                id = "hotel-5",
+                hotelName = "Taj Hotel",
+                cityName = "Agra",
+                isSoldOut = true,
+                imageUrl = "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800",
+            ),
+            FindHotelItem(
+                id = "hotel-6",
+                hotelName = "Fairfield Hotel",
+                cityName = "Agra",
+                priceMin = 4_999,
+                priceMax = 9_999,
+                isSoldOut = false,
+                imageUrl = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+            ),
+            FindHotelItem(
+                id = "hotel-7",
+                hotelName = "Oberoi Hotel",
+                cityName = "Agra",
+                isSoldOut = true,
+                imageUrl = "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800",
+            ),
+            FindHotelItem(
+                id = "hotel-8",
+                hotelName = "Taj Hotel",
+                cityName = "Agra",
+                isSoldOut = true,
+                imageUrl = "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800",
+            ),
+            FindHotelItem(
+                id = "hotel-9",
+                hotelName = "Fairfield Hotel",
+                cityName = "Agra",
+                priceMin = 4_999,
+                priceMax = 9_999,
+                isSoldOut = false,
+                imageUrl = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+            ),
+            FindHotelItem(
+                id = "hotel-10",
+                hotelName = "Oberoi Hotel",
+                cityName = "Agra",
+                isSoldOut = true,
+                imageUrl = "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800",
+            ),
+            FindHotelItem(
+                id = "hotel-11",
+                hotelName = "Taj Hotel",
+                cityName = "Agra",
+                isSoldOut = true,
+                imageUrl = "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800",
+            ),
+        ))
     }
 }
 
