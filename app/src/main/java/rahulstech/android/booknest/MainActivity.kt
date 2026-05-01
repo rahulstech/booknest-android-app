@@ -5,9 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
@@ -16,17 +16,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import rahulstech.android.booknest.ui.model.BookingDate
-import rahulstech.android.booknest.ui.screen.checkout.CheckOutScreen
-import rahulstech.android.booknest.ui.screen.checkout.sampleHotelDetails
-import rahulstech.android.booknest.ui.screen.checkout.sampleSelectedRooms
-import rahulstech.android.booknest.ui.screen.checkout.sampleUserDetails
+import rahulstech.android.booknest.ui.screen.findroom.FindRoomScreen
+import rahulstech.android.booknest.ui.screen.place.PlaceScreen
 import rahulstech.android.booknest.ui.theme.BookNestTheme
-import java.time.LocalDate
+import rahulstech.android.booknest.util.sampleLocations
+import rahulstech.android.booknest.util.samplePlace
+import rahulstech.android.booknest.util.samplePlaces
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,52 +50,40 @@ fun BookNestApp() {
                     icon = {
                         Icon(
                             it.icon,
-                            contentDescription = it.label
+                            contentDescription = stringResource(it.labelRes)
                         )
                     },
-                    label = { Text(it.label) },
+                    label = { Text(stringResource(it.labelRes)) },
                     selected = it == currentDestination,
                     onClick = { currentDestination = it }
                 )
             }
         }
     ) {
-        CheckOutScreen(
-            hotel = sampleHotelDetails,
-            selectedRooms = sampleSelectedRooms,
-            bookingDate = BookingDate(
-                checkInDate = LocalDate.of(2024, 6, 19),
-                checkOutDate = LocalDate.of(2024, 6, 21)
-            ),
-            user = sampleUserDetails,
-            onBack = {},
-            onLogout = {},
-            onRemoveRoom = {}
-        )
+        when(currentDestination) {
+            AppDestinations.HOME -> {
+                FindRoomScreen(
+                    locations = sampleLocations,
+                    places = samplePlaces
+                )
+            }
+            AppDestinations.WHERE2GO -> {
+                PlaceScreen(
+                    place = samplePlace
+                )
+            }
+            AppDestinations.FAQ -> {
+                Text("FAQ")
+            }
+        }
     }
 }
 
 enum class AppDestinations(
-    val label: String,
+    val labelRes: Int,
     val icon: ImageVector,
 ) {
-    HOME("Home", Icons.Default.Home),
-    FAVORITES("Favorites", Icons.Default.Favorite),
-    PROFILE("Profile", Icons.Default.AccountBox),
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BookNestTheme {
-        Greeting("Android")
-    }
+    HOME(R.string.nav_home, Icons.Default.Home),
+    WHERE2GO(R.string.nav_where2go, Icons.Outlined.LocationOn),
+    FAQ(R.string.nav_faqs, Icons.Outlined.Info)
 }

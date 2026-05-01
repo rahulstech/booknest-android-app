@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import rahulstech.android.booknest.ui.model.FindHotelItem
 import rahulstech.android.booknest.ui.theme.BookNestTheme
+import rahulstech.android.booknest.util.sampleHotels
 
 // ---------------------------------------------------------------------------
 // Screen
@@ -233,36 +234,12 @@ private fun HotelBadge(item: FindHotelItem) {
 // Preview
 // ---------------------------------------------------------------------------
 
-private val previewHotels = listOf(
-    FindHotelItem(
-        id = "hotel-1",
-        hotelName = "Fairfield Hotel",
-        cityName = "Agra",
-        priceMin = 4_999,
-        priceMax = 9_999,
-        isSoldOut = false,
-        imageUrl = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
-    ),
-    FindHotelItem(
-        id = "hotel-2",
-        hotelName = "Oberoi Hotel",
-        cityName = "Agra",
-        isSoldOut = true,
-        imageUrl = "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800",
-    ),
-    FindHotelItem(
-        id = "hotel-3",
-        hotelName = "Taj Hotel",
-        cityName = "Agra",
-        isSoldOut = true,
-        imageUrl = "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800",
-    ),
-)
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun SelectHotelScreenPreview() {
     BookNestTheme {
-        SelectHotelScreen(hotels = previewHotels)
+        SelectHotelScreen(hotels = sampleHotels)
     }
 }

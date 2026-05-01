@@ -70,6 +70,8 @@ import rahulstech.android.booknest.ui.component.LocalDateSaver
 import rahulstech.android.booknest.ui.component.ScreenTopBar
 import rahulstech.android.booknest.ui.model.Place
 import rahulstech.android.booknest.ui.theme.BookNestTheme
+import rahulstech.android.booknest.util.sampleLocations
+import rahulstech.android.booknest.util.samplePlaces
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -499,38 +501,6 @@ private fun PlaceCard(place: Place) {
 // ---------------------------------------------------------------------------
 // Previews
 // ---------------------------------------------------------------------------
-
-private val sampleLocations = listOf(
-    "Agra", "Bengaluru", "Chennai", "Delhi", "Mumbai", "Kolkata", "Jaipur"
-)
-
-private val samplePlaces = listOf(
-    Place(
-        id = "place-1",
-        name = "Agra",
-        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/1200px-Taj_Mahal_%28Edited%29.jpeg"
-    ),
-    Place(
-        id = "place-2",
-        name = "Bengaluru",
-        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/KR_Puram_Bridge.jpg/1200px-KR_Puram_Bridge.jpg"
-    ),
-    Place(
-        id = "place-3",
-        name = "Chennai",
-        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Chennai_Montage.jpg/800px-Chennai_Montage.jpg"
-    ),
-    Place(
-        id = "place-4",
-        name = "Delhi",
-        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/India_Gate_in_New_Delhi_03-2016.jpg/1200px-India_Gate_in_New_Delhi_03-2016.jpg"
-    ),
-    Place(
-        id = "place-5",
-        name = "Mumbai",
-        imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Mumbai_03-2016_30_Gateway_of_India.jpg/1200px-Mumbai_03-2016_30_Gateway_of_India.jpg"
-    ),
-)
 
 @Preview(name = "FindRoom – Empty", showBackground = true, showSystemUi = true)
 @Composable

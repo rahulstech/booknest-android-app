@@ -53,6 +53,8 @@ import rahulstech.android.booknest.ui.model.HotelDetails
 import rahulstech.android.booknest.ui.model.RoomDetails
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 import rahulstech.android.booknest.util.formatIndian
+import rahulstech.android.booknest.util.sampleHotel
+import rahulstech.android.booknest.util.sampleRooms
 
 // ─────────────────────────────────────────────────────────────
 // Screen
@@ -431,57 +433,13 @@ private fun CheckoutBar(
 // Preview
 // ─────────────────────────────────────────────────────────────
 
-// sample data
-
-fun sampleHotel() = HotelDetails(
-    heroPhotoUrl = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
-    name = "Fairfield Hotel",
-    location = "Agra",
-    stars = 4.3f,
-    aboutTheHotel = "Our hotel is located in Ashok Cosmos Mall in Sanjay Place, one of the " +
-            "largest shopping malls in the city. Iconic sites such as the Taj Mahal are minutes " +
-            "away while fun outings to Agra Golf Course are just around the corner.",
-    amenities = listOf(
-        Amenity(R.drawable.ic_gym, "Gym"),
-        Amenity(R.drawable.ic_free_parking, "Free Parking"),
-        Amenity(R.drawable.ic_restaurant, "Restaurant")
-    ),
-    rulesAndInformation = listOf(
-        "Check-in: 12.00 Pm, Check-out: 11.00 Am",
-        "Pets are not allowed.",
-        "Outside food is not allowed",
-        "Passport, Aadhar, and Govt. ID are accepted as ID proofs."
-    )
-)
-
-fun sampleRooms() = listOf(
-    RoomDetails(
-        id = "1",
-        roomType = "Deluxe Room AC",
-        pricePerDay = 4999,
-        photoUrl = "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
-    ),
-    RoomDetails(
-        id = "2",
-        roomType = "Double Room",
-        pricePerDay = 7999,
-        photoUrl = "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800"
-    ),
-    RoomDetails(
-        id = "3",
-        roomType = "Executive",
-        pricePerDay = 9999,
-        photoUrl = "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800"
-    )
-)
-
 @Preview(showBackground=true)
 @Composable
 fun SelectRoomScreenPreview() {
     BookNestTheme {
         SelectRoomScreen(
-            hotel = sampleHotel(),
-            rooms = sampleRooms(),
+            hotel = sampleHotel,
+            rooms = sampleRooms,
             numberOfDays = 2,
             onBack = {},
             onLogout = {},

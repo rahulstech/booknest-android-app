@@ -6,6 +6,11 @@
     <string name="navigate_up">navigate up</string>
     <string name="room_price_format">Rs. %1$s</string>
 
+    <!-- Main Activity -->
+    <string name="nav_home">Home</string>
+    <string name="nav_where2go">Where2Go</string>
+    <string name="nav_faqs">FAQs</string>
+
     <!-- SignUp Screen -->
     <string name="signup_title">Sign Up</string>
     <string name="signup_label_full_name">Full Name</string>
@@ -78,4 +83,11 @@
     <string name="checkout_name">Name</string>
     <string name="checkout_email_id">Email Id</string>
     <string name="checkout_phone_number">Phone Number</string>
+
+    <!-- Where2Go Screen -->
+    <string name="where2go_title">Where2Go</string>
+
+    <!-- Place Screen -->
+    <string name="places_title">Places</string>
+
 </resources>

@@ -44,6 +44,9 @@ import rahulstech.android.booknest.ui.model.RoomDetails
 import rahulstech.android.booknest.ui.model.UserDetails
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 import rahulstech.android.booknest.util.formatIndian
+import rahulstech.android.booknest.util.sampleHotel
+import rahulstech.android.booknest.util.sampleSelectedRooms
+import rahulstech.android.booknest.util.sampleUserDetails
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -352,30 +355,12 @@ private fun UserDetailRow(label: String, value: String) {
 //      Preview
 //---------------------------------
 
-// sample data
-val sampleHotelDetails = HotelDetails(
-    heroPhotoUrl = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
-    name = "Fairfield Hotel",
-    location = "Agra",
-    stars = 4.3f,
-    aboutTheHotel = "",
-    amenities = emptyList(),
-    rulesAndInformation = emptyList()
-)
-
-val sampleSelectedRooms = listOf(
-    RoomDetails("1", "Deluxe Room AC", 4999, "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"),
-    RoomDetails("2", "Executive", 9999, "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800")
-)
-
-val sampleUserDetails = UserDetails("John Doe", "john.doe@email.com", "9999999999")
-
 @PreviewLightDark
 @Composable
 private fun CheckOutScreenPreview() {
     BookNestTheme {
         CheckOutScreen(
-            hotel = sampleHotelDetails,
+            hotel = sampleHotel,
             selectedRooms = sampleSelectedRooms,
             bookingDate = BookingDate(
                 checkInDate = LocalDate.of(2024, 6, 19),
