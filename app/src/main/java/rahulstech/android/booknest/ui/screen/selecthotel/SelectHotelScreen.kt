@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import rahulstech.android.booknest.ui.model.FindHotelItem
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 
 // ---------------------------------------------------------------------------

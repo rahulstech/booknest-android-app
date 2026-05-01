@@ -21,7 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.DateRange
@@ -37,16 +36,14 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -70,6 +67,8 @@ import coil.compose.AsyncImage
 import rahulstech.android.booknest.R
 import rahulstech.android.booknest.ui.component.DatePickerComposableDialog
 import rahulstech.android.booknest.ui.component.LocalDateSaver
+import rahulstech.android.booknest.ui.component.ScreenTopBar
+import rahulstech.android.booknest.ui.model.Place
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -105,57 +104,26 @@ fun FindRoomScreen(
     var showRoomsDialog          by remember { mutableStateOf(false) }
     var showCheckInDatePickerDialog by remember { mutableStateOf(false) }
     var showCheckOutDatePickerDialog by remember { mutableStateOf(false) }
-    var checkInDate by rememberSaveable(stateSaver = LocalDateSaver()) { mutableStateOf<LocalDate?>(null) }
-    var checkOutDate by rememberSaveable(stateSaver = LocalDateSaver()) { mutableStateOf<LocalDate?>(null) }
+    var checkInDate by rememberSaveable(stateSaver = LocalDateSaver()) { mutableStateOf(null) }
+    var checkOutDate by rememberSaveable(stateSaver = LocalDateSaver()) { mutableStateOf(null) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-    ) {
-        // -------------------------------------------------------------------
-        // Top App Bar
-        // -------------------------------------------------------------------
-        TopAppBar(
-            title = {
-                Text(
-                    text       = stringResource(R.string.find_room_title),
-                    style      = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color      = MaterialTheme.colorScheme.onSurface,
-                )
-            },
-            actions = {
-                FilledTonalButton(
-                    onClick = onLogout,
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = Color.Transparent
-                    )
-                ) {
-                    Icon(
-                        imageVector        = Icons.AutoMirrored.Filled.ExitToApp,
-                        contentDescription = null,
-                        tint               = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text  = stringResource(R.string.find_room_logout),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ),
-        )
 
+    Scaffold(
+        topBar = {
+            ScreenTopBar(
+                title = stringResource(R.string.find_room_title),
+                showLogoutAction = true,
+                onLogout = onLogout
+            )
+        }
+    ) { paddingValues ->
         // -------------------------------------------------------------------
         // Scrollable body
         // -------------------------------------------------------------------
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 20.dp),
         ) {
@@ -539,27 +507,27 @@ private val sampleLocations = listOf(
 private val samplePlaces = listOf(
     Place(
         id = "place-1",
-        name     = "Agra",
+        name = "Agra",
         imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/1200px-Taj_Mahal_%28Edited%29.jpeg"
     ),
     Place(
         id = "place-2",
-        name     = "Bengaluru",
+        name = "Bengaluru",
         imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/KR_Puram_Bridge.jpg/1200px-KR_Puram_Bridge.jpg"
     ),
     Place(
         id = "place-3",
-        name     = "Chennai",
+        name = "Chennai",
         imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Chennai_Montage.jpg/800px-Chennai_Montage.jpg"
     ),
     Place(
         id = "place-4",
-        name     = "Delhi",
+        name = "Delhi",
         imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/India_Gate_in_New_Delhi_03-2016.jpg/1200px-India_Gate_in_New_Delhi_03-2016.jpg"
     ),
     Place(
         id = "place-5",
-        name     = "Mumbai",
+        name = "Mumbai",
         imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Mumbai_03-2016_30_Gateway_of_India.jpg/1200px-Mumbai_03-2016_30_Gateway_of_India.jpg"
     ),
 )

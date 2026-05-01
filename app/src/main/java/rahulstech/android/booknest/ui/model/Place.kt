@@ -1,4 +1,4 @@
-package rahulstech.android.booknest.ui.screen.findroom
+package rahulstech.android.booknest.ui.model
 
 data class Place(
     val id: String,

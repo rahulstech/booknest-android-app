@@ -20,10 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import rahulstech.android.booknest.ui.screen.selectroom.SelectRoomScreen
-import rahulstech.android.booknest.ui.screen.selectroom.sampleHotel
-import rahulstech.android.booknest.ui.screen.selectroom.sampleRooms
+import rahulstech.android.booknest.ui.model.BookingDate
+import rahulstech.android.booknest.ui.screen.checkout.CheckOutScreen
+import rahulstech.android.booknest.ui.screen.checkout.sampleHotelDetails
+import rahulstech.android.booknest.ui.screen.checkout.sampleSelectedRooms
+import rahulstech.android.booknest.ui.screen.checkout.sampleUserDetails
 import rahulstech.android.booknest.ui.theme.BookNestTheme
+import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,11 +62,17 @@ fun BookNestApp() {
             }
         }
     ) {
-        SelectRoomScreen (
-            hotel = sampleHotel(),
-            rooms = sampleRooms(),
-            numberOfDays = 2,
-            onCheckout = {}
+        CheckOutScreen(
+            hotel = sampleHotelDetails,
+            selectedRooms = sampleSelectedRooms,
+            bookingDate = BookingDate(
+                checkInDate = LocalDate.of(2024, 6, 19),
+                checkOutDate = LocalDate.of(2024, 6, 21)
+            ),
+            user = sampleUserDetails,
+            onBack = {},
+            onLogout = {},
+            onRemoveRoom = {}
         )
     }
 }

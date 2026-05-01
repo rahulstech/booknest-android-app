@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">BookNest</string>
 
+    <!-- common labels -->
+    <string name="logout">Logout</string>
+    <string name="navigate_up">navigate up</string>
+    <string name="room_price_format">Rs. %1$s</string>
+
     <!-- SignUp Screen -->
     <string name="signup_title">Sign Up</string>
     <string name="signup_label_full_name">Full Name</string>
@@ -20,7 +25,6 @@
 
     <!-- FindRoom Screen -->
     <string name="find_room_title">Find Room</string>
-    <string name="find_room_logout">Logout</string>
     <string name="find_room_label_location">Where you want to go?</string>
     <string name="find_room_label_check_in">Check-in Date</string>
     <string name="find_room_label_check_out">Check-out Date</string>
@@ -37,6 +41,7 @@
     <string name="date_picker_cancel">Cancel</string>
 
     <!-- Select Room Screen -->
+    <string name="select_room_screen_title">Select Room</string>
     <string name="select_room_about_hotel">About the hotel</string>
     <string name="select_room_amenities_available">Amenities available</string>
     <string name="select_room_property_rules">Property Rules &amp; Information</string>
@@ -53,7 +58,24 @@
         <item quantity="other">%d Days</item>
     </plurals>
     <string name="select_room_cd_hotel_photo">Hotel photo</string>
-    <string name="select_room_price_format">Rs. %1$s</string>
+
     <string name="select_room_checkout_format">%1$s | %2$s | Rs. %3$s</string>
     <string name="select_room_hotel_header_format">%1$s, %2$s</string>
+    <string name="select_room_bullet">○  </string>
+
+    <!-- Checkout Screen -->
+    <string name="checkout_screen_title">Checkout</string>
+    <string name="checkout_screen_days">%1$d Days</string>
+    <string name="checkout_booking_details">Booking Details</string>
+    <string name="checkout_check_in">CHECK-IN</string>
+    <string name="checkout_check_out">CHECK-OUT</string>
+    <string name="checkout_btn_remove">Remove</string>
+    <string name="checkout_price_breakup">Price Breakup</string>
+    <string name="checkout_room_price">Room Price</string>
+    <string name="checkout_gst">GST</string>
+    <string name="checkout_to_pay">To Pay</string>
+    <string name="checkout_user_details">User Details</string>
+    <string name="checkout_name">Name</string>
+    <string name="checkout_email_id">Email Id</string>
+    <string name="checkout_phone_number">Phone Number</string>
 </resources>

@@ -24,6 +24,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
@@ -32,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -47,6 +47,10 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import coil.compose.AsyncImage
 import rahulstech.android.booknest.R
+import rahulstech.android.booknest.ui.component.ScreenTopBar
+import rahulstech.android.booknest.ui.model.Amenity
+import rahulstech.android.booknest.ui.model.HotelDetails
+import rahulstech.android.booknest.ui.model.RoomDetails
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 import rahulstech.android.booknest.util.formatIndian
 
@@ -65,21 +69,30 @@ fun SelectRoomScreen(
     hotel: HotelDetails,
     rooms: List<RoomDetails>,
     numberOfDays: Int,
+    onBack: ()-> Unit,
+    onLogout: ()-> Unit,
     onCheckout: (selectedRooms: List<RoomDetails>) -> Unit
 ) {
-    BookNestTheme {
-        // Track which room IDs are selected
-        val selectedRoomIds = remember { mutableStateListOf<String>() }
+    // Track which room IDs are selected
+    val selectedRoomIds = remember { mutableStateListOf<String>() }
+    val selectedRooms = rooms.filter { it.id in selectedRoomIds }
+    val totalCost = selectedRooms.sumOf { it.pricePerDay } * numberOfDays
+    val showBottomBar = selectedRoomIds.isNotEmpty()
 
-        val selectedRooms = rooms.filter { it.id in selectedRoomIds }
-        val totalCost = selectedRooms.sumOf { it.pricePerDay } * numberOfDays
-        val showBottomBar = selectedRoomIds.isNotEmpty()
-
-        Box(modifier = Modifier.fillMaxSize()) {
-
+    Scaffold(
+        topBar = {
+            ScreenTopBar(
+                title = stringResource(R.string.select_room_screen_title),
+                showNavUp = true,
+                onNavUp = onBack,
+                showLogoutAction = true,
+                onLogout = onLogout
+            )
+        }
+    ) { paddingValues ->
             // ── Scrollable content ──────────────────────────────
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
                 contentPadding = PaddingValues(
                     bottom = if (showBottomBar) 100.dp else 16.dp
                 )
@@ -157,25 +170,24 @@ fun SelectRoomScreen(
                     )
                 }
             }
+        }
 
-            // ── Bottom checkout bar as a Popup ──────────────────
-            if (showBottomBar) {
-                Popup(
-                    alignment = Alignment.BottomCenter,
-                    properties = PopupProperties(
-                        focusable = false,
-                        dismissOnBackPress = false,
-                        dismissOnClickOutside = false
-                    )
-                ) {
-                    CheckoutBar(
-                        roomCount = selectedRoomIds.size,
-                        days = numberOfDays,
-                        totalCost = totalCost,
-                        onCheckout = { onCheckout(selectedRooms) }
-                    )
-                }
-            }
+    // ── Bottom checkout bar as a Popup ──────────────────
+    if (showBottomBar) {
+        Popup(
+            alignment = Alignment.BottomCenter,
+            properties = PopupProperties(
+                focusable = false,
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            )
+        ) {
+            CheckoutBar(
+                roomCount = selectedRoomIds.size,
+                days = numberOfDays,
+                totalCost = totalCost,
+                onCheckout = { onCheckout(selectedRooms) }
+            )
         }
     }
 }
@@ -316,7 +328,7 @@ private fun RoomCard(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    text = stringResource(R.string.select_room_price_format, room.pricePerDay.formatIndian()),
+                    text = stringResource(R.string.room_price_format, room.pricePerDay.formatIndian()),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -373,13 +385,8 @@ private fun CheckoutBar(
             .padding(16.dp)
             .shadow(elevation = 12.dp, shape = RoundedCornerShape(24.dp))
             .background(
-                brush = Brush.horizontalGradient(
-                    listOf(
-                        Color(0xFF29B6F6),  // light blue
-                        Color(0xFF00ACC1)   // cyan
-                    )
-                ),
-                shape = RoundedCornerShape(24.dp)
+                color = MaterialTheme.colorScheme.primary,
+                shape = MaterialTheme.shapes.large
             )
             .padding(horizontal = 20.dp, vertical = 14.dp)
             .fillMaxWidth(),
@@ -476,6 +483,8 @@ fun SelectRoomScreenPreview() {
             hotel = sampleHotel(),
             rooms = sampleRooms(),
             numberOfDays = 2,
+            onBack = {},
+            onLogout = {},
             onCheckout = {}
         )
     }

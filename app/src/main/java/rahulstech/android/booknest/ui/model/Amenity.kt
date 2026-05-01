@@ -1,4 +1,4 @@
-package rahulstech.android.booknest.ui.screen.selectroom
+package rahulstech.android.booknest.ui.model
 
 data class Amenity(
     val iconRes: Int,          // drawable resource id
