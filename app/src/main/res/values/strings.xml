@@ -35,4 +35,25 @@
     <string name="date_picker_default_title">Choose Date</string>
     <string name="date_picker_set">Set</string>
     <string name="date_picker_cancel">Cancel</string>
+
+    <!-- Select Room Screen -->
+    <string name="select_room_about_hotel">About the hotel</string>
+    <string name="select_room_amenities_available">Amenities available</string>
+    <string name="select_room_property_rules">Property Rules &amp; Information</string>
+    <string name="select_room_title_select_rooms">Select Room(s)</string>
+    <string name="select_room_btn_selected">SELECTED</string>
+    <string name="select_room_btn_select">SELECT</string>
+    <string name="select_room_btn_checkout">Checkout</string>
+    <plurals name="select_room_label_room">
+        <item quantity="one">%d Room</item>
+        <item quantity="other">%d Rooms</item>
+    </plurals>
+    <plurals name="select_room_label_day">
+        <item quantity="one">%d Day</item>
+        <item quantity="other">%d Days</item>
+    </plurals>
+    <string name="select_room_cd_hotel_photo">Hotel photo</string>
+    <string name="select_room_price_format">Rs. %1$s</string>
+    <string name="select_room_checkout_format">%1$s | %2$s | Rs. %3$s</string>
+    <string name="select_room_hotel_header_format">%1$s, %2$s</string>
 </resources>
