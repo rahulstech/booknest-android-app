@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "50152339309",
+    "firebase_url": "https://booknest-b97e9-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "booknest-b97e9",
+    "storage_bucket": "booknest-b97e9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:50152339309:android:86b5b5d6db818a25a68c64",
+        "android_client_info": {
+          "package_name": "rahulstech.android.booknest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgd8euZUwbFEoA0O9M_X_Zzum3CgihyFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
