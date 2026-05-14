@@ -1,4 +1,4 @@
-package rahulstech.android.booknest.ui.model
+package rahulstech.android.booknest.data.model
 
 /**
  * Represents a single hotel entry shown in the hotel-selection list.

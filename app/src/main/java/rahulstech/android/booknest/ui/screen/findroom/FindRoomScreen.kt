@@ -1,5 +1,6 @@
 package rahulstech.android.booknest.ui.screen.findroom
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -33,9 +33,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,7 +49,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,12 +62,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import rahulstech.android.booknest.R
+import rahulstech.android.booknest.data.model.Place
+import rahulstech.android.booknest.data.model.PlaceName
 import rahulstech.android.booknest.ui.component.DatePickerComposableDialog
-import rahulstech.android.booknest.ui.component.LocalDateSaver
 import rahulstech.android.booknest.ui.component.ScreenTopBar
-import rahulstech.android.booknest.ui.model.Place
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 import rahulstech.android.booknest.util.sampleLocations
 import rahulstech.android.booknest.util.samplePlaces
@@ -81,6 +81,28 @@ import java.time.format.DateTimeFormatter
 
 private val DATE_FORMAT = DateTimeFormatter.ofPattern("d/M/yyyy")
 
+private const val TAG = "FindRoomScreen"
+
+
+
+@Composable
+fun FindRoomRoute(
+    onLogout: ()-> Unit,
+    viewModel: FindRoomViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState
+
+    FindRoomScreen(
+        uiState = uiState,
+        onChangeLocation = viewModel::updateLocation,
+        onChangeCheckInDate = viewModel::updateCheckInDate,
+        onChangeCheckOutDate = viewModel::updateCheckOutDate,
+        onChangeRoom = viewModel::updateRooms,
+        onLogout = onLogout,
+        onSearch = { },
+        onViewAll = { }
+    )
+}
 
 /**
  * FindRoomScreen — search form + best-places horizontal list.
@@ -94,21 +116,16 @@ private val DATE_FORMAT = DateTimeFormatter.ofPattern("d/M/yyyy")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FindRoomScreen(
-    locations: List<String>,
-    places: List<Place> = emptyList(),
+    uiState: FindRoomUIState,
+    onChangeLocation: (PlaceName)-> Unit,
+    onChangeCheckInDate: (LocalDate)-> Unit,
+    onChangeCheckOutDate: (LocalDate)-> Unit,
+    onChangeRoom: (Int)-> Unit,
     onLogout: () -> Unit = {},
-    onSearch: (location: String, checkIn: LocalDate, checkOut: LocalDate, rooms: Int) -> Unit = { _, _, _, _ -> },
+    onSearch: (RoomSearchParameter) -> Unit = {},
     onViewAll: () -> Unit = {},
 ) {
-    var selectedLocation         by rememberSaveable { mutableStateOf("") }
-    var numberOfRooms            by rememberSaveable { mutableIntStateOf(0) }
-    var locationDropdownExpanded by remember { mutableStateOf(false) }
-    var showRoomsDialog          by remember { mutableStateOf(false) }
-    var showCheckInDatePickerDialog by remember { mutableStateOf(false) }
-    var showCheckOutDatePickerDialog by remember { mutableStateOf(false) }
-    var checkInDate by rememberSaveable(stateSaver = LocalDateSaver()) { mutableStateOf(null) }
-    var checkOutDate by rememberSaveable(stateSaver = LocalDateSaver()) { mutableStateOf(null) }
-
+    Log.d(TAG, "recomposing FindRoomScreen")
 
     Scaffold(
         topBar = {
@@ -142,81 +159,43 @@ fun FindRoomScreen(
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
 
-                    // Location — wrapped in a Box so the DropdownMenu anchors correctly
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        PickerTextField(
-                            label    = stringResource(R.string.find_room_label_location),
-                            value    = selectedLocation,
-                            leadingIcon = Icons.Default.LocationOn,
-                            trailingIcon = {
-                                Icon(
-                                    imageVector        = if (locationDropdownExpanded)
-                                        Icons.Default.KeyboardArrowUp
-                                    else
-                                        Icons.Default.KeyboardArrowDown,
-                                    contentDescription = null,
-                                    tint               = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            },
-                            onClick  = { locationDropdownExpanded = true },
-                        )
-                        DropdownMenu(
-                            expanded         = locationDropdownExpanded,
-                            onDismissRequest = { locationDropdownExpanded = false },
-                            modifier         = Modifier.widthIn(max = 300.dp).background(MaterialTheme.colorScheme.surfaceVariant),
-                        ) {
-                            locations.forEach { city ->
-                                DropdownMenuItem(
-                                    text    = {
-                                        Text(
-                                            text       = city,
-                                            style      = MaterialTheme.typography.bodyLarge,
-                                            fontWeight = FontWeight.Bold,
-                                        )
-                                    },
-                                    onClick = {
-                                        selectedLocation = city
-                                        locationDropdownExpanded = false
-                                    },
-                                )
-                            }
-                        }
-                    }
+                    LocationChooser(
+                        allLocations = uiState.allLocations,
+                        location = uiState.location,
+                        onChange = onChangeLocation
+                    )
 
                     // Check-in Date
-                    PickerTextField(
-                        label        = stringResource(R.string.find_room_label_check_in),
-                        value        = checkInDate?.format(DATE_FORMAT) ?: "",
-                        leadingIcon  = Icons.Default.DateRange,
-                        onClick      = {
-                            showCheckInDatePickerDialog = true
-                        },
+                    DateChooser(
+                        label = stringResource(R.string.find_room_label_check_in),
+                        date = uiState.checkIn,
+                        onChange = onChangeCheckInDate
                     )
 
                     // Check-out Date
-                    PickerTextField(
-                        label        = stringResource(R.string.find_room_label_check_out),
-                        value        = checkOutDate?.format(DATE_FORMAT) ?: "",
-                        leadingIcon  = Icons.Default.DateRange,
-                        onClick      = {
-                            showCheckOutDatePickerDialog = true
-                        },
+                    DateChooser(
+                        label = stringResource(R.string.find_room_label_check_out),
+                        date = uiState.checkOut,
+                        onChange = onChangeCheckOutDate
                     )
 
                     // Number of Rooms
-                    PickerTextField(
-                        label        = stringResource(R.string.find_room_label_rooms),
-                        value        = if (numberOfRooms > 0) numberOfRooms.toString() else "",
-                        leadingIcon  = Icons.Default.Home,
-                        onClick      = { showRoomsDialog = true },
+                    RoomChooser(
+                        rooms = uiState.rooms,
+                        onChange = onChangeRoom
                     )
+
 
                     // SEARCH button — top corners flush with card body, bottom corners match card
                     Button(
                         onClick  = {
-                            if (null != checkInDate && null != checkOutDate) {
-                                onSearch(selectedLocation, checkInDate!!, checkOutDate!!, numberOfRooms)
-                            }
+                            val params = RoomSearchParameter(
+                                location = uiState.location,
+                                checkIn = uiState.checkIn,
+                                checkOut = uiState.checkOut,
+                                rooms = uiState.rooms
+                            )
+                            onSearch(params)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -242,80 +221,182 @@ fun FindRoomScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // ---------------------------------------------------------------
-            // Best Places header
-            // ---------------------------------------------------------------
-            Row(
-                modifier              = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment     = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text          = stringResource(R.string.find_room_best_places),
-                    style         = MaterialTheme.typography.labelLarge,
-                    fontWeight    = FontWeight.Bold,
-                    letterSpacing = 1.5.sp,
-                    color         = MaterialTheme.colorScheme.onSurfaceVariant,
+            SectionBestPlaces(
+                places = uiState.bestPlaces,
+                onViewAll = onViewAll
+            )
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LocationChooser(
+    allLocations: List<PlaceName>,
+    location: PlaceName?,
+    onChange: (PlaceName)->Unit
+) {
+    Log.d(TAG, "recomposing LocationChooser")
+
+    var expanded by remember { mutableStateOf(false) }
+
+    // Location — wrapped in a Box so the DropdownMenu anchors correctly
+    ExposedDropdownMenuBox(
+        modifier = Modifier.fillMaxWidth(),
+        expanded = expanded,
+        onExpandedChange = {}
+    ) {
+        PickerTextField(
+            label    = stringResource(R.string.find_room_label_location),
+            value    = location?.name ?: "",
+            leadingIcon = Icons.Default.LocationOn,
+            trailingIcon = {
+                Icon(
+                    imageVector        = if (expanded)
+                        Icons.Default.KeyboardArrowUp
+                    else
+                        Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint               = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                TextButton(onClick = onViewAll) {
-                    Text(
-                        text       = stringResource(R.string.find_room_view_all),
-                        style      = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color      = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // ---------------------------------------------------------------
-            // Horizontal place cards
-            // ---------------------------------------------------------------
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(
-                    items = places,
-                    key = { it.id }
-                ) { place ->
-                    PlaceCard(place = place)
-                }
+            },
+            onClick  = { expanded = true },
+        )
+        ExposedDropdownMenu(
+            expanded         = expanded,
+            onDismissRequest = { expanded = false },
+            modifier         = Modifier
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+        ) {
+            allLocations.forEach { place ->
+                DropdownMenuItem(
+                    text    = {
+                        Text(
+                            text       = place.name,
+                            style      = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    },
+                    onClick = {
+                        onChange(place)
+                        expanded = false
+                    },
+                )
             }
         }
     }
+}
 
-    if (showRoomsDialog) {
+@Composable
+private fun DateChooser(
+    label: String,
+    date: LocalDate,
+    onChange: (LocalDate)-> Unit
+) {
+    Log.d(TAG, "recomposing DateChooser label=$label")
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    PickerTextField(
+        label        = label,
+        value        = date.format(DATE_FORMAT),
+        leadingIcon  = Icons.Default.DateRange,
+        onClick      = {
+            showDialog = true
+        },
+    )
+
+    if (showDialog) {
+        DatePickerComposableDialog(
+            onDismissRequest = { showDialog = false },
+            title = stringResource(R.string.find_room_dialog_check_in_title),
+            initialDate = date,
+            onDateChanged = onChange
+        )
+    }
+}
+
+@Composable
+private fun RoomChooser(
+    rooms: Int,
+    onChange: (Int)-> Unit
+) {
+    Log.d(TAG, "recomposing RoomChooser")
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    PickerTextField(
+        label        = stringResource(R.string.find_room_label_rooms),
+        value        = rooms.toString(),
+        leadingIcon  = Icons.Default.Home,
+        onClick      = { showDialog = true },
+    )
+
+    if (showDialog) {
         NumberOfRoomsDialog(
-            initialCount = numberOfRooms.coerceAtLeast(1),
+            initialCount = rooms,
             onConfirm    = { count ->
-                showRoomsDialog = false
-                numberOfRooms = count
+                showDialog = false
+                onChange(count)
             },
         )
     }
-
-    if (showCheckInDatePickerDialog) {
-        DatePickerComposableDialog(
-            onDismissRequest = { showCheckInDatePickerDialog = false },
-            title = stringResource(R.string.find_room_dialog_check_in_title),
-            initialDate = LocalDate.now(),
-            onDateChanged = { newCheckInDate ->
-                checkInDate = newCheckInDate
-            }
-        )
-    }
-
-    if (showCheckOutDatePickerDialog) {
-        DatePickerComposableDialog(
-            onDismissRequest = { showCheckOutDatePickerDialog = false },
-            title = stringResource(R.string.find_room_dialog_check_out_title),
-            initialDate = LocalDate.now(),
-            onDateChanged = { newCheckOutDate ->
-                checkOutDate = newCheckOutDate
-            }
-        )
-    }
-
 }
+
+
+@Composable
+private fun SectionBestPlaces(
+    places: List<Place>,
+    onViewAll: () -> Unit
+) {
+    Log.d(TAG, "recomposing SectionBestPlaces")
+
+    // ---------------------------------------------------------------
+    // Best Places header
+    // ---------------------------------------------------------------
+    Row(
+        modifier              = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment     = Alignment.CenterVertically,
+    ) {
+        Text(
+            text          = stringResource(R.string.find_room_best_places),
+            style         = MaterialTheme.typography.labelLarge,
+            fontWeight    = FontWeight.Bold,
+            letterSpacing = 1.5.sp,
+            color         = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        TextButton(onClick = onViewAll) {
+            Text(
+                text       = stringResource(R.string.find_room_view_all),
+                style      = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color      = MaterialTheme.colorScheme.primary,
+            )
+        }
+    }
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    // ---------------------------------------------------------------
+    // Horizontal place cards
+    // ---------------------------------------------------------------
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        items(
+            items = places,
+            key = { it.id }
+        ) { place ->
+            PlaceCard(
+                place = place,
+                onClick = {
+                    // TODO: handle on click place
+                }
+            )
+        }
+    }
+}
+
 
 // ---------------------------------------------------------------------------
 // PickerTextField
@@ -378,8 +459,8 @@ private fun PickerTextField(
                 .matchParentSize()
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication        = null,
-                    onClick           = onClick,
+                    indication = null,
+                    onClick = onClick,
                 )
         )
     }
@@ -458,8 +539,12 @@ private fun NumberOfRoomsDialog(
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun PlaceCard(place: Place) {
+private fun PlaceCard(
+    place: Place,
+    onClick: (Place) -> Unit
+) {
     Card(
+        onClick = { onClick(place) } ,
         modifier  = Modifier
             .width(160.dp)
             .height(160.dp),
@@ -502,84 +587,23 @@ private fun PlaceCard(place: Place) {
 // Previews
 // ---------------------------------------------------------------------------
 
-@Preview(name = "FindRoom – Empty", showBackground = true, showSystemUi = true)
+@Preview(name = "FindRoom", showBackground = true, showSystemUi = true)
 @Composable
 private fun FindRoomEmptyPreview() {
     BookNestTheme {
         FindRoomScreen(
-            locations = sampleLocations,
-            places = samplePlaces
+            uiState = FindRoomUIState(
+                allLocations = sampleLocations,
+                bestPlaces = samplePlaces
+            ),
+            onChangeLocation = {},
+            onChangeCheckInDate = {},
+            onChangeCheckOutDate = {},
+            onChangeRoom = {},
+            onLogout = {},
+            onSearch = {},
+            onViewAll = {},
         )
-    }
-}
-
-@Preview(name = "FindRoom – Filled", showBackground = true, showSystemUi = true)
-@Composable
-private fun FindRoomFilledPreview() {
-    BookNestTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp),
-        ) {
-            Card(
-                modifier  = Modifier.fillMaxWidth(),
-                shape     = MaterialTheme.shapes.small,
-                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-                colors    = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            ) {
-                Column {
-                    PickerTextField(
-                        label       = stringResource(R.string.find_room_label_location),
-                        value       = "Agra",
-                        leadingIcon = Icons.Default.LocationOn,
-                        trailingIcon = {
-                            Icon(
-                                imageVector        = Icons.Default.KeyboardArrowDown,
-                                contentDescription = null,
-                                tint               = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        },
-                    )
-                    PickerTextField(
-                        label       = stringResource(R.string.find_room_label_check_in),
-                        value       = "19/6/2024",
-                        leadingIcon = Icons.Default.DateRange,
-                    )
-                    PickerTextField(
-                        label       = stringResource(R.string.find_room_label_check_out),
-                        value       = "21/6/2024",
-                        leadingIcon = Icons.Default.DateRange,
-                    )
-                    PickerTextField(
-                        label       = stringResource(R.string.find_room_label_rooms),
-                        value       = "2",
-                        leadingIcon = Icons.Default.Home,
-                    )
-                    Button(
-                        onClick  = {},
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        shape    = RoundedCornerShape(
-                            topStart = 0.dp, topEnd = 0.dp,
-                            bottomStart = 8.dp, bottomEnd = 8.dp,
-                        ),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                        ),
-                    ) {
-                        Text(
-                            text          = stringResource(R.string.find_room_btn_search),
-                            style         = MaterialTheme.typography.labelLarge,
-                            letterSpacing = 2.sp,
-                            fontWeight    = FontWeight.Bold,
-                        )
-                    }
-                }
-            }
-        }
     }
 }
 

@@ -1,4 +1,4 @@
-package rahulstech.android.booknest.ui.model
+package rahulstech.android.booknest.data.model
 
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit

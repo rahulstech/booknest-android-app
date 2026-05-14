@@ -19,12 +19,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import rahulstech.android.booknest.ui.screen.findroom.FindRoomScreen
+import rahulstech.android.booknest.ui.screen.findroom.FindRoomRoute
 import rahulstech.android.booknest.ui.screen.place.PlaceScreen
 import rahulstech.android.booknest.ui.theme.BookNestTheme
-import rahulstech.android.booknest.util.sampleLocations
 import rahulstech.android.booknest.util.samplePlace
-import rahulstech.android.booknest.util.samplePlaces
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,7 +30,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BookNestTheme {
-                BookNestApp()
+                MainScreen()
             }
         }
     }
@@ -40,8 +38,10 @@ class MainActivity : ComponentActivity() {
 
 @PreviewScreenSizes
 @Composable
-fun BookNestApp() {
+fun MainScreen() {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
+
+
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -62,10 +62,7 @@ fun BookNestApp() {
     ) {
         when(currentDestination) {
             AppDestinations.HOME -> {
-                FindRoomScreen(
-                    locations = sampleLocations,
-                    places = samplePlaces
-                )
+                FindRoomRoute(onLogout = { })
             }
             AppDestinations.WHERE2GO -> {
                 PlaceScreen(

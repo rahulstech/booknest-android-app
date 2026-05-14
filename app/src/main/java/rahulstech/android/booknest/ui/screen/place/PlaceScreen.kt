@@ -24,13 +24,13 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import rahulstech.android.booknest.R
 import rahulstech.android.booknest.ui.component.ScreenTopBar
-import rahulstech.android.booknest.ui.model.PlaceDetails
+import rahulstech.android.booknest.data.model.Place
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 import rahulstech.android.booknest.util.samplePlace
 
 @Composable
 fun PlaceScreen(
-    place: PlaceDetails,
+    place: Place,
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
     onLogout: () -> Unit = {}

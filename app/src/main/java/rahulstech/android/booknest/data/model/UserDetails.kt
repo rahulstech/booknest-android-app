@@ -1,4 +1,4 @@
-package rahulstech.android.booknest.ui.model
+package rahulstech.android.booknest.data.model
 
 data class UserDetails(
     val name: String,

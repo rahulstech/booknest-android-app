@@ -21,5 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "BookNest"
 include(":app")
-include(":data:remote")
-include(":data:domain")

@@ -1,33 +1,37 @@
 package rahulstech.android.booknest.util
 
 import rahulstech.android.booknest.R
-import rahulstech.android.booknest.ui.model.Amenity
-import rahulstech.android.booknest.ui.model.FindHotelItem
-import rahulstech.android.booknest.ui.model.HotelDetails
-import rahulstech.android.booknest.ui.model.Place
-import rahulstech.android.booknest.ui.model.PlaceDetails
-import rahulstech.android.booknest.ui.model.RoomDetails
-import rahulstech.android.booknest.ui.model.UserDetails
+import rahulstech.android.booknest.data.model.Amenity
+import rahulstech.android.booknest.data.model.FindHotelItem
+import rahulstech.android.booknest.data.model.HotelDetails
+import rahulstech.android.booknest.data.model.Place
+import rahulstech.android.booknest.data.model.PlaceName
+import rahulstech.android.booknest.data.model.RoomDetails
+import rahulstech.android.booknest.data.model.UserDetails
 
 val samplePlaces = listOf(
     Place(
         id = "place-1",
         name = "Agra",
-        imageUrl = "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800"
+        imageUrl = "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800",
+        description = ""
     ),
     Place(
         id = "place-2",
         name = "Bengaluru",
-        imageUrl = "https://images.unsplash.com/photo-1596760411126-fa9997900cc2?w=800"
+        imageUrl = "https://images.unsplash.com/photo-1596760411126-fa9997900cc2?w=800",
+        description = ""
     ),
     Place(
         id = "place-3",
         name = "Chennai",
-        imageUrl = "https://images.unsplash.com/photo-1582510003544-2d095665039b?w=800"
+        imageUrl = "https://images.unsplash.com/photo-1582510003544-2d095665039b?w=800",
+        description = ""
     )
 )
 
-val samplePlace = PlaceDetails(
+val samplePlace = Place(
+    id = "place-1",
     name = "Bengaluru",
     imageUrl = "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800",
     description = """
@@ -42,7 +46,7 @@ val samplePlace = PlaceDetails(
             """.trimIndent()
 )
 
-val sampleLocations = samplePlaces.map { it.name }
+val sampleLocations = samplePlaces.map { PlaceName(it.id,it.name) }
 
 val sampleHotels = listOf(
     FindHotelItem(

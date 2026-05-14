@@ -48,9 +48,9 @@ import androidx.compose.ui.window.PopupProperties
 import coil.compose.AsyncImage
 import rahulstech.android.booknest.R
 import rahulstech.android.booknest.ui.component.ScreenTopBar
-import rahulstech.android.booknest.ui.model.Amenity
-import rahulstech.android.booknest.ui.model.HotelDetails
-import rahulstech.android.booknest.ui.model.RoomDetails
+import rahulstech.android.booknest.data.model.Amenity
+import rahulstech.android.booknest.data.model.HotelDetails
+import rahulstech.android.booknest.data.model.RoomDetails
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 import rahulstech.android.booknest.util.formatIndian
 import rahulstech.android.booknest.util.sampleHotel
