@@ -5,6 +5,9 @@
     <string name="logout">Logout</string>
     <string name="navigate_up">navigate up</string>
     <string name="room_price_format">Rs. %1$s</string>
+    <string name="amenity_gym">Gym</string>
+    <string name="amenity_restaurant">Restaurant</string>
+    <string name="amenity_parking">Parking</string>
 
     <!-- Main Activity -->
     <string name="nav_home">Home</string>

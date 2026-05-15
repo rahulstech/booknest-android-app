@@ -1,8 +1,9 @@
 package rahulstech.android.booknest.ui.screen.where2go
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -34,6 +36,7 @@ import rahulstech.android.booknest.ui.component.ScreenTopBar
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 import rahulstech.android.booknest.util.samplePlaces
 
+private const val TAG = "Where2Go"
 
 @Composable
 fun Where2GoRoute(
@@ -49,7 +52,6 @@ fun Where2GoRoute(
     val uiState by viewModel.uiState
 
     Scaffold(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
         topBar = {
             ScreenTopBar(
                 title = stringResource(R.string.where2go_title),
@@ -60,21 +62,28 @@ fun Where2GoRoute(
             )
         },
     ) { paddingValues ->
-        if (uiState.isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.padding(paddingValues)
-                    .size(size = 64.dp)
-            )
-        }
-        else if (uiState.error != null) {
-            // TODO: handle load error
-        }
-        else {
-            Where2GoScreen(
-                places = uiState.allPlaces,
-                onViewPlace = onViewPlace,
-                modifier = Modifier.padding(paddingValues)
-            )
+        Box(
+            modifier = Modifier.padding(paddingValues)
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            if (uiState.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.padding(paddingValues)
+                        .size(size = 64.dp)
+                )
+            }
+            else if (uiState.error != null) {
+                // TODO: handle load error
+            }
+            else {
+                Where2GoScreen(
+                    places = uiState.allPlaces,
+                    onViewPlace = onViewPlace,
+                    modifier = Modifier.padding(paddingValues)
+                )
+            }
         }
     }
 }
@@ -88,10 +97,9 @@ fun Where2GoScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize(),
-        contentPadding = PaddingValues(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(places) { place ->
+        items(items = places, key = { it.id }) { place ->
             CityCard(
                 place = place,
                 onClick =  { onViewPlace(it.id) }
@@ -106,6 +114,8 @@ private fun CityCard(
     onClick: (Place)-> Unit,
     modifier: Modifier = Modifier
 ) {
+    Log.d(TAG,"place = $place")
+
     Card(
         onClick = { onClick(place) },
         modifier = modifier.fillMaxWidth(),

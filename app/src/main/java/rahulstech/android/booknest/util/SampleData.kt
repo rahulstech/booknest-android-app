@@ -1,6 +1,5 @@
 package rahulstech.android.booknest.util
 
-import rahulstech.android.booknest.R
 import rahulstech.android.booknest.data.model.Amenity
 import rahulstech.android.booknest.data.model.FindHotelItem
 import rahulstech.android.booknest.data.model.HotelDetails
@@ -74,26 +73,6 @@ val sampleHotels = listOf(
     ),
 )
 
-val sampleHotel = HotelDetails(
-    heroPhotoUrl = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
-    name = "Fairfield Hotel",
-    location = "Agra",
-    stars = 4.3f,
-    aboutTheHotel = "Our hotel is located in Ashok Cosmos Mall in Sanjay Place, one of the " +
-            "largest shopping malls in the city. Iconic sites such as the Taj Mahal are minutes " +
-            "away while fun outings to Agra Golf Course are just around the corner.",
-    amenities = listOf(
-        Amenity(R.drawable.ic_gym, "Gym"),
-        Amenity(R.drawable.ic_free_parking, "Free Parking"),
-        Amenity(R.drawable.ic_restaurant, "Restaurant")
-    ),
-    rulesAndInformation = listOf(
-        "Check-in: 12.00 Pm, Check-out: 11.00 Am",
-        "Pets are not allowed.",
-        "Outside food is not allowed",
-        "Passport, Aadhar, and Govt. ID are accepted as ID proofs."
-    )
-)
 
 val sampleRooms = listOf(
     RoomDetails(
@@ -114,6 +93,29 @@ val sampleRooms = listOf(
         pricePerDay = 9999,
         photoUrl = "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800"
     )
+)
+
+val sampleHotel = HotelDetails(
+    id = "hotel-1",
+    heroPhotoUrl = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+    name = "Fairfield Hotel",
+    location = "Agra",
+    stars = 4.3f,
+    aboutTheHotel = "Our hotel is located in Ashok Cosmos Mall in Sanjay Place, one of the " +
+            "largest shopping malls in the city. Iconic sites such as the Taj Mahal are minutes " +
+            "away while fun outings to Agra Golf Course are just around the corner.",
+    amenities = listOf(
+        Amenity.GYM,
+        Amenity.PARKING,
+        Amenity.RESTAURANT
+    ),
+    rulesAndInformation = listOf(
+        "Check-in: 12.00 Pm, Check-out: 11.00 Am",
+        "Pets are not allowed.",
+        "Outside food is not allowed",
+        "Passport, Aadhar, and Govt. ID are accepted as ID proofs."
+    ),
+    rooms = sampleRooms
 )
 
 val sampleSelectedRooms = listOf(sampleRooms[0], sampleRooms[2])

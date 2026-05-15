@@ -1,6 +1,7 @@
 package rahulstech.android.booknest.ui.screen.place
 
 import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -50,7 +52,7 @@ fun PlaceRoute(
     val uiState by viewModel.uiState
 
     Scaffold(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+
         topBar = {
             ScreenTopBar(
                 title = stringResource(R.string.places_title),
@@ -61,20 +63,29 @@ fun PlaceRoute(
             )
         }
     ) { paddingValues ->
-        if (uiState.isLoading) {
-            Log.d(TAG,"loading")
-            CircularProgressIndicator(modifier = Modifier.padding(paddingValues).size(size = 64.dp))
-        }
-        else if (uiState.isSuccessful) {
-            Log.d(TAG,"place[$placeId] found")
-            PlaceScreen(
-                place = uiState.place!!, // PlaceUIState.place is non-null only when isLoading = false and isSuccessful = true
-                modifier = Modifier.padding(paddingValues)
-            )
-        }
-        else {
-            Log.d(TAG,"place[$placeId] not found")
-            onExit()
+        Box(
+            modifier = Modifier.padding(paddingValues)
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            if (uiState.isLoading) {
+                Log.d(TAG,"loading")
+
+                CircularProgressIndicator(modifier = Modifier.size(size = 64.dp))
+            }
+            else if (uiState.isSuccessful) {
+                Log.d(TAG,"place[$placeId] found")
+
+                PlaceScreen(
+                    place = uiState.place!!, // PlaceUIState.place is non-null only when isLoading = false and isSuccessful = true
+                )
+            }
+            else {
+                Log.d(TAG,"place[$placeId] not found")
+
+                onExit()
+            }
         }
     }
 }

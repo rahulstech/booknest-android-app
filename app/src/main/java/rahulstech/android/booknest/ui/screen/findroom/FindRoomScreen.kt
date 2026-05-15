@@ -1,6 +1,5 @@
 package rahulstech.android.booknest.ui.screen.findroom
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -90,6 +89,7 @@ fun FindRoomRoute(
     onLogout: ()-> Unit,
     onViewAllPlaces: ()-> Unit,
     onViewPlace: (String)-> Unit,
+    onSearch: (RoomSearchParameter) -> Unit,
     viewModel: FindRoomViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState
@@ -101,7 +101,7 @@ fun FindRoomRoute(
         onChangeCheckOutDate = viewModel::updateCheckOutDate,
         onChangeRoom = viewModel::updateRooms,
         onLogout = onLogout,
-        onSearch = { },
+        onSearch = onSearch,
         onViewAllPlaces = onViewAllPlaces,
         onViewPlace = onViewPlace
     )
@@ -129,8 +129,6 @@ fun FindRoomScreen(
     onViewAllPlaces: () -> Unit,
     onViewPlace: (String)-> Unit
 ) {
-    Log.d(TAG, "recomposing FindRoomScreen")
-
     Scaffold(
         topBar = {
             ScreenTopBar(
@@ -241,7 +239,6 @@ private fun LocationChooser(
     location: PlaceName?,
     onChange: (PlaceName)->Unit
 ) {
-    Log.d(TAG, "recomposing LocationChooser")
 
     var expanded by remember { mutableStateOf(false) }
 
@@ -298,8 +295,6 @@ private fun DateChooser(
     date: LocalDate,
     onChange: (LocalDate)-> Unit
 ) {
-    Log.d(TAG, "recomposing DateChooser label=$label")
-
     var showDialog by remember { mutableStateOf(false) }
 
     PickerTextField(
@@ -326,8 +321,6 @@ private fun RoomChooser(
     rooms: Int,
     onChange: (Int)-> Unit
 ) {
-    Log.d(TAG, "recomposing RoomChooser")
-
     var showDialog by remember { mutableStateOf(false) }
 
     PickerTextField(
@@ -355,8 +348,6 @@ private fun SectionBestPlaces(
     onViewAll: () -> Unit,
     onViewPlace: (String)-> Unit
 ) {
-    Log.d(TAG, "recomposing SectionBestPlaces")
-
     // ---------------------------------------------------------------
     // Best Places header
     // ---------------------------------------------------------------

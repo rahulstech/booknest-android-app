@@ -32,16 +32,71 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import rahulstech.android.booknest.data.model.FindHotelItem
+import rahulstech.android.booknest.data.model.Resource
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 import rahulstech.android.booknest.util.sampleHotels
+
+
+
+@Composable
+fun SelectHotelRoute(
+    placeId: String,
+    onExit: ()-> Unit,
+    onLogout: () -> Unit,
+    onViewHotel: (String)-> Unit,
+    viewModel: SelectHotelViewModel = viewModel()
+) {
+    LaunchedEffect(placeId) {
+        viewModel.fetchHotelsAtPlace(placeId)
+    }
+
+    val hotelResource by viewModel.hotelResource
+
+    Scaffold(
+        topBar = {
+            SelectHotelTopBar(
+                onBack = onExit,
+                onLogout = onLogout,
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background,
+    ) { innerPadding ->
+
+        Box(
+            modifier = Modifier.padding(innerPadding)
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            when(hotelResource) {
+                is Resource.Loading -> {
+                    // TODO: show loading skeleton
+                }
+                is Resource.Success -> {
+                    SelectHotelScreen(
+                        hotels = (hotelResource as Resource.Success<List<FindHotelItem>>).data,
+                        onHotelClick = { onViewHotel(it.id) }
+                    )
+                }
+                is Resource.Error -> {
+                    // TODO: handle hotel loading error
+                }
+                else -> Unit
+            }
+        }
+    }
+}
+
 
 // ---------------------------------------------------------------------------
 // Screen
@@ -51,39 +106,25 @@ import rahulstech.android.booknest.util.sampleHotels
 @Composable
 fun SelectHotelScreen(
     hotels: List<FindHotelItem>,
-    onBack: () -> Unit = {},
-    onLogout: () -> Unit = {},
-    onHotelClick: (FindHotelItem) -> Unit = {},
+    onHotelClick: (FindHotelItem) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        topBar = {
-            SelectHotelTopBar(
-                onBack = onBack,
-                onLogout = onLogout,
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 350.dp),
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        horizontalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        items(
+            items = hotels,
+            key = { it.id },
+        ) { hotel ->
+            HotelCard(
+                item = hotel,
+                onClick = {
+                    if (!hotel.isSoldOut) onHotelClick(hotel)
+                },
             )
-        },
-        containerColor = MaterialTheme.colorScheme.background,
-    ) { innerPadding ->
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 350.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            items(
-                items = hotels,
-                key = { it.id },
-            ) { hotel ->
-                HotelCard(
-                    item = hotel,
-                    onClick = {
-                        if (!hotel.isSoldOut) onHotelClick(hotel)
-                    },
-                )
-            }
         }
     }
 }
@@ -240,6 +281,9 @@ private fun HotelBadge(item: FindHotelItem) {
 @Composable
 private fun SelectHotelScreenPreview() {
     BookNestTheme {
-        SelectHotelScreen(hotels = sampleHotels)
+        SelectHotelScreen(
+            hotels = sampleHotels,
+            onHotelClick = { }
+        )
     }
 }
