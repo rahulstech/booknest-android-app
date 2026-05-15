@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BookNest">
         <activity
-            android:name=".MainActivity"
+            android:name=".acitivity.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.BookNest">
             <intent-filter>

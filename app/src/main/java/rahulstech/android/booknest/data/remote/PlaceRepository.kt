@@ -34,9 +34,19 @@ class PlaceRepository private constructor() {
     }
 
     private val _db = FirebaseDatabase.getInstance()
+    private val _places = _db.getReference("places")
+
+    fun getAllPlaces(): Flow<List<Place>> = flow {
+        val snapshot = _places
+            .get()
+            .await()
+        val places = snapshot.children.mapNotNull { it.toPlace() }
+
+        emit(places)
+    }.flowOn(Dispatchers.IO)
 
     fun getAllPlaceNames(): Flow<List<PlaceName>> = flow {
-        val snapshot = _db.getReference("places")
+        val snapshot = _places
             .get()
             .await()
         val names = snapshot.children.mapNotNull { it.toPlaceName() }
@@ -45,13 +55,18 @@ class PlaceRepository private constructor() {
     }.flowOn(Dispatchers.IO)
 
     fun getBestPlaces(): Flow<List<Place>> = flow {
-
-        val snapshot = _db.getReference("places")
+        val snapshot = _places
             .limitToLast(3)
             .get()
             .await()
-        val places = snapshot.children.mapNotNull { it.toPlace() }
+        val bestPlaces = snapshot.children.mapNotNull { it.toPlace() }
 
-        emit(places)
+        emit(bestPlaces)
     }.flowOn(Dispatchers.IO)
+
+    suspend fun findPlaceById(id: String): Place? {
+        val snapshot = _places.child(id).get().await()
+        val place = snapshot.toPlace()
+        return place
+    }
 }

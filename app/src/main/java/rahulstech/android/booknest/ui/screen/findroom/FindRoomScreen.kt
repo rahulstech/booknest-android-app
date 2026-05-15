@@ -88,6 +88,8 @@ private const val TAG = "FindRoomScreen"
 @Composable
 fun FindRoomRoute(
     onLogout: ()-> Unit,
+    onViewAllPlaces: ()-> Unit,
+    onViewPlace: (String)-> Unit,
     viewModel: FindRoomViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState
@@ -100,7 +102,8 @@ fun FindRoomRoute(
         onChangeRoom = viewModel::updateRooms,
         onLogout = onLogout,
         onSearch = { },
-        onViewAll = { }
+        onViewAllPlaces = onViewAllPlaces,
+        onViewPlace = onViewPlace
     )
 }
 
@@ -111,7 +114,7 @@ fun FindRoomRoute(
  *
  * @param onLogout  Invoked when the user taps Logout.
  * @param onSearch  Invoked with the form values when SEARCH is tapped.
- * @param onViewAll Invoked when "VIEW ALL" is tapped.
+ * @param onViewAllPlaces Invoked when "VIEW ALL" is tapped.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,9 +124,10 @@ fun FindRoomScreen(
     onChangeCheckInDate: (LocalDate)-> Unit,
     onChangeCheckOutDate: (LocalDate)-> Unit,
     onChangeRoom: (Int)-> Unit,
-    onLogout: () -> Unit = {},
-    onSearch: (RoomSearchParameter) -> Unit = {},
-    onViewAll: () -> Unit = {},
+    onLogout: () -> Unit,
+    onSearch: (RoomSearchParameter) -> Unit,
+    onViewAllPlaces: () -> Unit,
+    onViewPlace: (String)-> Unit
 ) {
     Log.d(TAG, "recomposing FindRoomScreen")
 
@@ -185,7 +189,6 @@ fun FindRoomScreen(
                         onChange = onChangeRoom
                     )
 
-
                     // SEARCH button — top corners flush with card body, bottom corners match card
                     Button(
                         onClick  = {
@@ -223,7 +226,8 @@ fun FindRoomScreen(
 
             SectionBestPlaces(
                 places = uiState.bestPlaces,
-                onViewAll = onViewAll
+                onViewAll = onViewAllPlaces,
+                onViewPlace = onViewPlace
             )
         }
     }
@@ -348,7 +352,8 @@ private fun RoomChooser(
 @Composable
 private fun SectionBestPlaces(
     places: List<Place>,
-    onViewAll: () -> Unit
+    onViewAll: () -> Unit,
+    onViewPlace: (String)-> Unit
 ) {
     Log.d(TAG, "recomposing SectionBestPlaces")
 
@@ -389,9 +394,7 @@ private fun SectionBestPlaces(
         ) { place ->
             PlaceCard(
                 place = place,
-                onClick = {
-                    // TODO: handle on click place
-                }
+                onClick = { onViewPlace(it.id) }
             )
         }
     }
@@ -602,7 +605,8 @@ private fun FindRoomEmptyPreview() {
             onChangeRoom = {},
             onLogout = {},
             onSearch = {},
-            onViewAll = {},
+            onViewAllPlaces = {},
+            onViewPlace = {}
         )
     }
 }
