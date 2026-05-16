@@ -66,6 +66,7 @@ import coil.compose.AsyncImage
 import rahulstech.android.booknest.R
 import rahulstech.android.booknest.data.model.Place
 import rahulstech.android.booknest.data.model.PlaceName
+import rahulstech.android.booknest.ui.common.RoomSearchParameter
 import rahulstech.android.booknest.ui.component.DatePickerComposableDialog
 import rahulstech.android.booknest.ui.component.ScreenTopBar
 import rahulstech.android.booknest.ui.theme.BookNestTheme
@@ -191,7 +192,7 @@ fun FindRoomScreen(
                     Button(
                         onClick  = {
                             val params = RoomSearchParameter(
-                                location = uiState.location,
+                                placeId = uiState.location?.id ?: "",
                                 checkIn = uiState.checkIn,
                                 checkOut = uiState.checkOut,
                                 rooms = uiState.rooms
@@ -262,7 +263,7 @@ private fun LocationChooser(
                     tint               = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
-            onClick  = { expanded = true },
+            onClick  = { expanded = !expanded },
         )
         ExposedDropdownMenu(
             expanded         = expanded,
@@ -440,7 +441,7 @@ private fun PickerTextField(
                 unfocusedIndicatorColor  = MaterialTheme.colorScheme.outlineVariant,
                 disabledTextColor        = MaterialTheme.colorScheme.onSurface,
                 disabledLabelColor       = if (hasValue) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.onSurfaceVariant,
+                                            else MaterialTheme.colorScheme.onSurfaceVariant,
                 focusedLabelColor        = MaterialTheme.colorScheme.primary,
                 unfocusedLabelColor      = MaterialTheme.colorScheme.onSurfaceVariant,
                 disabledLeadingIconColor  = MaterialTheme.colorScheme.primary,

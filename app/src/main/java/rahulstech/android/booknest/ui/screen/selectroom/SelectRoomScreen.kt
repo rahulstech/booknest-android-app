@@ -54,6 +54,7 @@ import rahulstech.android.booknest.data.model.Amenity
 import rahulstech.android.booknest.data.model.HotelDetails
 import rahulstech.android.booknest.data.model.Resource
 import rahulstech.android.booknest.data.model.RoomDetails
+import rahulstech.android.booknest.ui.common.RoomSearchParameter
 import rahulstech.android.booknest.ui.component.ScreenTopBar
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 import rahulstech.android.booknest.util.formatIndian
@@ -64,10 +65,13 @@ private const val TAG = "SelectRoomScreen"
 @Composable
 fun SelectRoomRoute(
     hotelId: String,
+    params: RoomSearchParameter,
     onExit: ()-> Unit,
     onLogout: ()-> Unit,
     viewModel: SelectRoomViewModel = viewModel()
 ) {
+    Log.d(TAG, "params = $params")
+
     LaunchedEffect(hotelId) {
         viewModel.findHotel(hotelId)
     }
@@ -104,7 +108,7 @@ fun SelectRoomRoute(
                     else {
                         SelectRoomScreen(
                             hotel = hotel,
-                            numberOfDays = 0,
+                            numberOfDays = params.calculateDays(),
                             onCheckout = { }
                         )
                     }
@@ -379,15 +383,14 @@ private fun RoomCard(
                 .clip(MaterialTheme.shapes.medium)
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Name, price and select button
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = room.roomType,
                     style = MaterialTheme.typography.titleMedium.copy(
@@ -395,12 +398,17 @@ private fun RoomCard(
                     ),
                     color = MaterialTheme.colorScheme.onBackground
                 )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
                     text = stringResource(R.string.room_price_format, room.pricePerDay.formatIndian()),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
+
+            Spacer(modifier = Modifier.width(8.dp))
 
             SelectButton(isSelected = isSelected, onClick = onToggle)
         }
@@ -452,41 +460,39 @@ private fun CheckoutBar(
                 color = MaterialTheme.colorScheme.primary,
                 shape = MaterialTheme.shapes.medium
             )
-            .padding(vertical = 8.dp, horizontal = 8.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(vertical = 8.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            modifier = Modifier.weight(1f),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        val roomsText = pluralStringResource(R.plurals.select_room_label_room, roomCount, roomCount)
+        val daysText = pluralStringResource(R.plurals.select_room_label_day, days, days)
+
+        Text(
+            text = stringResource(R.string.select_room_checkout_format, roomsText, daysText, totalCost.formatIndian()),
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontWeight = FontWeight.SemiBold
+            ),
+            modifier = Modifier.weight(1f)
+        )
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        Button(
+            onClick = onCheckout,
+            shape = MaterialTheme.shapes.medium,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            ),
         ) {
-            val roomsText = pluralStringResource(R.plurals.select_room_label_room, roomCount, roomCount)
-            val daysText = pluralStringResource(R.plurals.select_room_label_day, days, days)
             Text(
-                text = stringResource(R.string.select_room_checkout_format, roomsText, daysText, totalCost.formatIndian()),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontWeight = FontWeight.SemiBold
+                text = stringResource(R.string.select_room_btn_checkout),
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold
                 )
             )
-
-            Button(
-                onClick = onCheckout,
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ),
-            ) {
-                Text(
-                    text = stringResource(R.string.select_room_btn_checkout),
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            }
         }
     }
 }

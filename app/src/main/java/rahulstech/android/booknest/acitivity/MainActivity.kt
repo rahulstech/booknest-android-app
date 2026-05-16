@@ -1,6 +1,7 @@
 package rahulstech.android.booknest.acitivity
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -24,7 +25,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navigation
 import rahulstech.android.booknest.R
+import rahulstech.android.booknest.ui.common.RoomSearchParameter
+import rahulstech.android.booknest.ui.common.toRoomSearchParameters
 import rahulstech.android.booknest.ui.screen.findroom.FindRoomRoute
 import rahulstech.android.booknest.ui.screen.place.PlaceRoute
 import rahulstech.android.booknest.ui.screen.selecthotel.SelectHotelRoute
@@ -54,6 +58,8 @@ fun MainScreen() {
 
     val onLogout: ()-> Unit = { }
 
+
+
     NavigationSuiteScaffold(
         navigationSuiteItems = {
             BottomNavDestinations.entries.forEach {
@@ -76,21 +82,79 @@ fun MainScreen() {
     ) {
         NavHost(
             navController = navController,
-            startDestination = AppRoute.FindRoom.route
+            startDestination = AppRoute.HotelBookingForm.route
         ) {
+            navigation(
+                route = AppRoute.HotelBookingForm.route,
+                startDestination = AppRoute.FindRoom.route
+            ) {
+                val getGraphEntry = { navController.getBackStackEntry(AppRoute.HotelBookingForm.route) }
 
-            // find room
-            composable(route = AppRoute.FindRoom.route) {
-                FindRoomRoute(
-                    onLogout = onLogout,
-                    onViewAllPlaces = { navController.navigate(AppRoute.Where2Go.route) },
-                    onViewPlace = { placeId ->
-                        navController.navigate(AppRoute.Place.build(placeId))
-                    },
-                    onSearch = { params ->
-                        navController.navigate(AppRoute.SelectHotel.build(params.location!!.id))
-                    }
-                )
+                val getParams = {
+                    getGraphEntry().savedStateHandle.get<Bundle>("room_search_params")
+                        ?.toRoomSearchParameters()
+                        ?: RoomSearchParameter()
+                }
+
+                val setParams = { params: RoomSearchParameter ->
+                    getGraphEntry().savedStateHandle["room_search_params"] = params.toBundle()
+                }
+
+                // find room
+                composable(route = AppRoute.FindRoom.route) {
+                    FindRoomRoute(
+                        onLogout = onLogout,
+                        onViewAllPlaces = { navController.navigate(AppRoute.Where2Go.route) },
+                        onViewPlace = { placeId ->
+                            navController.navigate(AppRoute.Place.build(placeId))
+                        },
+                        onSearch = { params ->
+                            Log.d("MainActivity", "set params = $params")
+                            setParams(params)
+                            navController.navigate(AppRoute.SelectHotel.build(params.placeId))
+                        }
+                    )
+                }
+
+                // select hotel
+                composable(
+                    route = AppRoute.SelectHotel.route,
+                    arguments = listOf(
+                        navArgument("placeId") {
+                            type = NavType.StringType
+                            nullable = false
+                        }
+                    )
+                ) { backStack ->
+                    val placeId = backStack.arguments?.getString("placeId")!!
+                    SelectHotelRoute(
+                        placeId = placeId,
+                        onExit = onExit,
+                        onLogout = onLogout,
+                        onViewHotel = { hotelId ->
+                            navController.navigate(AppRoute.SelectRoom.build(hotelId))
+                        }
+                    )
+                }
+
+                // select room
+                composable(
+                    route = AppRoute.SelectRoom.route,
+                    arguments = listOf(
+                        navArgument("hotelId") {
+                            type = NavType.StringType
+                            nullable = false
+                        }
+                    )
+                ) { backStack ->
+                    val hotelId = backStack.arguments?.getString("hotelId")!!
+                    SelectRoomRoute(
+                        hotelId = hotelId,
+                        params = getParams(),
+                        onExit = onExit,
+                        onLogout = onLogout,
+                    )
+                }
             }
 
             // where2go
@@ -124,45 +188,6 @@ fun MainScreen() {
                     onLogout = onLogout
                 )
             }
-
-            // select hotel
-            composable(
-                route = AppRoute.SelectHotel.route,
-                arguments = listOf(
-                    navArgument("placeId") {
-                        type = NavType.StringType
-                        nullable = false
-                    }
-                )
-            ) { backStack ->
-                val placeId = backStack.arguments?.getString("placeId")!!
-                SelectHotelRoute(
-                    placeId = placeId,
-                    onExit = onExit,
-                    onLogout = onLogout,
-                    onViewHotel = { hotelId ->
-                        navController.navigate(AppRoute.SelectRoom.build(hotelId))
-                    }
-                )
-            }
-
-            // select room
-            composable(
-                route = AppRoute.SelectRoom.route,
-                arguments = listOf(
-                    navArgument("hotelId") {
-                        type = NavType.StringType
-                        nullable = false
-                    }
-                )
-            ) { backStack ->
-                val hotelId = backStack.arguments?.getString("hotelId")!!
-                SelectRoomRoute(
-                    hotelId = hotelId,
-                    onExit = onExit,
-                    onLogout = onLogout,
-                )
-            }
         }
     }
 }
@@ -178,6 +203,9 @@ enum class BottomNavDestinations(
 }
 
 sealed class AppRoute(val route: String) {
+
+
+    object HotelBookingForm: AppRoute("hotel_booking")
 
     object FindRoom: AppRoute("find_room")
 

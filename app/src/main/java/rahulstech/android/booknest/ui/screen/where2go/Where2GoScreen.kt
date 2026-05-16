@@ -1,6 +1,5 @@
 package rahulstech.android.booknest.ui.screen.where2go
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -81,7 +80,6 @@ fun Where2GoRoute(
                 Where2GoScreen(
                     places = uiState.allPlaces,
                     onViewPlace = onViewPlace,
-                    modifier = Modifier.padding(paddingValues)
                 )
             }
         }
@@ -95,8 +93,7 @@ fun Where2GoScreen(
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
-        modifier = modifier
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(items = places, key = { it.id }) { place ->
@@ -114,7 +111,7 @@ private fun CityCard(
     onClick: (Place)-> Unit,
     modifier: Modifier = Modifier
 ) {
-    Log.d(TAG,"place = $place")
+//    Log.d(TAG,"place = $place")
 
     Card(
         onClick = { onClick(place) },
