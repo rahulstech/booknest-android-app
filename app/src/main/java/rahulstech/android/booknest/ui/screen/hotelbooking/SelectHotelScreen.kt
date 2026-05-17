@@ -1,4 +1,4 @@
-package rahulstech.android.booknest.ui.screen.selecthotel
+package rahulstech.android.booknest.ui.screen.hotelbooking
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,20 +48,19 @@ import rahulstech.android.booknest.ui.theme.BookNestTheme
 import rahulstech.android.booknest.util.sampleHotels
 
 
-
 @Composable
 fun SelectHotelRoute(
     placeId: String,
     onExit: ()-> Unit,
     onLogout: () -> Unit,
     onViewHotel: (String)-> Unit,
-    viewModel: SelectHotelViewModel = viewModel()
+    viewModel: BookHotelViewModel = viewModel()
 ) {
     LaunchedEffect(placeId) {
         viewModel.fetchHotelsAtPlace(placeId)
     }
 
-    val hotelResource by viewModel.hotelResource
+    val hotelResource by viewModel.hotelsResource
 
     Scaffold(
         topBar = {

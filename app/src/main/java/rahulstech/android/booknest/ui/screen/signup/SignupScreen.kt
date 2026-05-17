@@ -1,7 +1,15 @@
 package rahulstech.android.booknest.ui.screen.signup
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -9,8 +17,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Phone
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -34,32 +54,56 @@ import rahulstech.android.booknest.ui.theme.BookNestTheme
 private val GradientTop    = Color(0xFF1A8FB5)   // light sky-blue
 private val GradientBottom = Color( 0xFF64C8F0)   // deeper teal-blue
 
+
+@Composable
+fun SignupRoute(
+    onOtpSent: ()-> Unit,
+    viewModel: AuthViewModel,
+) {
+    val uiState by viewModel.signUpUiState
+
+    LaunchedEffect(uiState.isLoading, uiState.isCodeSent) {
+        if (!uiState.isLoading && uiState.isCodeSent) {
+            onOtpSent()
+        }
+    }
+
+    SignUpScreen(
+        uiState = uiState,
+        onChangeName = viewModel::updateName,
+        onChangeEmail = viewModel::updateEmail,
+        onChangePhone = viewModel::updatePhone,
+        onSendOtp = {
+            viewModel.signup()
+        }
+    )
+}
+
+
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 @Composable
 fun SignUpScreen(
-    onSendOtp: (name: String, email: String, mobile: String) -> Unit,
-    isLoading: Boolean = false
+    uiState: SignUpUIState,
+    onChangeName: (String)-> Unit,
+    onChangeEmail: (String)-> Unit,
+    onChangePhone: (String)-> Unit,
+    onSendOtp: ()-> Unit,
 ) {
-    var fullName     by remember { mutableStateOf("") }
-    var email        by remember { mutableStateOf("") }
-    var mobileNumber by remember { mutableStateOf("") }
-
-    val backgroundBrush = Brush.verticalGradient(
-        colors = listOf(GradientTop, GradientBottom)
-    )
-
     Box(
         modifier = Modifier
+            .imePadding()
             .fillMaxSize()
-            .background(brush = backgroundBrush),
+            .background(brush = Brush.verticalGradient(
+                colors = listOf(GradientTop, GradientBottom)
+            )),
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center
         ) {
 
@@ -96,43 +140,44 @@ fun SignUpScreen(
 
                     // Full Name
                     SignUpTextField(
-                        value        = fullName,
-                        onValueChange = { fullName = it },
+                        value        = uiState.name,
+                        onValueChange = onChangeName,
                         label        = stringResource(R.string.signup_label_full_name),
                         icon         = Icons.Outlined.AccountCircle,
                         keyboardType = KeyboardType.Text,
-                        enabled      = !isLoading
+                        enabled      = !uiState.isLoading,
+                        error        = uiState.nameError
                     )
 
                     // Email
                     SignUpTextField(
-                        value        = email,
-                        onValueChange = { email = it },
+                        value        = uiState.email,
+                        onValueChange = onChangeEmail,
                         label        = stringResource(R.string.signup_label_email),
                         icon         = Icons.Outlined.Email,
                         keyboardType = KeyboardType.Email,
-                        enabled      = !isLoading
+                        enabled      = !uiState.isLoading,
+                        error        = uiState.emailError
                     )
 
                     // Mobile Number
                     SignUpTextField(
-                        value        = mobileNumber,
-                        onValueChange = { if (it.length <= 10) mobileNumber = it },
+                        value        = uiState.phone,
+                        onValueChange = onChangePhone,
                         label        = stringResource(R.string.signup_label_mobile_number),
                         icon         = Icons.Outlined.Phone,
                         keyboardType = KeyboardType.Phone,
-                        enabled      = !isLoading
+                        enabled      = !uiState.isLoading,
+                        error        = uiState.phoneError
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
 
                     // Send OTP Button
                     SendOtpButton(
-                        isLoading = isLoading,
-                        enabled   = fullName.isNotBlank() &&
-                                email.isNotBlank() &&
-                                mobileNumber.length == 10,
-                        onClick   = { onSendOtp(fullName, email, mobileNumber) }
+                        isLoading = uiState.isLoading,
+                        enabled   = !uiState.isLoading,
+                        onClick   = onSendOtp
                     )
                 }
             }
@@ -142,7 +187,7 @@ fun SignUpScreen(
 
         // ── Full Screen Loading Overlay ───────────────────────────────────────
         LoadingOverlay(
-            show = isLoading,
+            show = uiState.isLoading,
             message = stringResource(R.string.signup_loading)
         )
     }
@@ -156,7 +201,8 @@ private fun SignUpTextField(
     label         : String,
     icon          : ImageVector,
     keyboardType  : KeyboardType,
-    enabled       : Boolean
+    enabled       : Boolean,
+    error         : String? = null
 ) {
     OutlinedTextField(
         value         = value,
@@ -181,6 +227,16 @@ private fun SignUpTextField(
         ),
         singleLine      = true,
         shape           = MaterialTheme.shapes.extraSmall,
+        isError         = error != null,
+        supportingText  = error?.let {
+            {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 12.sp
+                )
+            }
+        }
     )
 }
 
@@ -209,22 +265,25 @@ private fun SendOtpButton(
 }
 
 // ── Preview ───────────────────────────────────────────────────────────────────
-@PreviewScreenSizes()
+@PreviewScreenSizes
 @Composable
 fun SignUpScreenPreview() {
-    var isLoading    by remember { mutableStateOf(false) }
-    val scope        = rememberCoroutineScope()
+    var uiState    by remember { mutableStateOf(SignUpUIState()) }
+    val coroutineScope        = rememberCoroutineScope()
 
     BookNestTheme {
         SignUpScreen(
-            onSendOtp = { _,_,_ ->
-                scope.launch {
-                    isLoading = true
-                    delay(2500) // fake delay
-                    isLoading = false
+            uiState = uiState,
+            onChangeName = {},
+            onChangeEmail = {},
+            onChangePhone = {},
+            onSendOtp = {
+                coroutineScope.launch {
+                    uiState = uiState.copy(isLoading = true)
+                    delay(3000)
+                    uiState = uiState.copy(isLoading = false)
                 }
-            },
-            isLoading = isLoading
+            }
         )
     }
 }

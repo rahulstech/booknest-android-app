@@ -118,6 +118,4 @@ val sampleHotel = HotelDetails(
     rooms = sampleRooms
 )
 
-val sampleSelectedRooms = listOf(sampleRooms[0], sampleRooms[2])
-
-val sampleUserDetails = UserDetails("John Doe", "john.doe@email.com", "9999999999")
+val sampleUserDetails = UserDetails( "John Doe", "john.doe@email.com", "9999999999")

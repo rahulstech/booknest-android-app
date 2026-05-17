@@ -1,14 +1,33 @@
-package rahulstech.android.booknest.ui.screen.verifyotp
+package rahulstech.android.booknest.ui.screen.signup
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,6 +37,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -25,8 +45,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import rahulstech.android.booknest.R
 import rahulstech.android.booknest.ui.component.LoadingOverlay
 import rahulstech.android.booknest.ui.theme.BookNestTheme
@@ -38,28 +56,41 @@ private val ButtonDark      @Composable get() = MaterialTheme.colorScheme.primar
 private val ButtonLight     @Composable get() = MaterialTheme.colorScheme.primaryContainer
 private val LightButtonText @Composable get() = MaterialTheme.colorScheme.onPrimaryContainer
 
+
+
+@Composable
+fun VerifyOtpRoute(
+    onExit: ()-> Unit,
+    viewModel: AuthViewModel
+) {
+    val uiState by viewModel.signUpUiState
+
+    VerifyOtpScreen(
+        isVerifying = uiState.isLoading,
+        otpResendAfterSeconds = viewModel.otpResendAfterSeconds,
+        onVerifyOtp = { otp ->
+            viewModel.verifyOtp(otp)
+        },
+        onResendOtp = {
+            viewModel.resendOtp()
+        },
+        onEditPhone = {
+            viewModel.resetCodeSentState()
+            onExit()
+        }
+    )
+}
+
 // ── Screen ────────────────────────────────────────────────────────────────────
 @Composable
 fun VerifyOtpScreen(
-    onVerifyOtp     : (otp: String) -> Unit = {},
-    onResendOtp     : () -> Unit = {},
-    onEditPhone     : () -> Unit = {}
+    isVerifying     : Boolean,
+    otpResendAfterSeconds: Int? = null,
+    onVerifyOtp     : (otp: String) -> Unit,
+    onResendOtp     : () -> Unit,
+    onEditPhone     : () -> Unit
 ) {
     var otpValue        by remember { mutableStateOf("") }
-    var isVerifying     by remember { mutableStateOf(false) }
-    var timerSeconds    by remember { mutableIntStateOf(41) }
-    var canResend       by remember { mutableStateOf(false) }
-    val scope           = rememberCoroutineScope()
-    val focusRequester  = remember { FocusRequester() }
-
-    // Countdown timer
-    LaunchedEffect(Unit) {
-        while (timerSeconds > 0) {
-            delay(1000L)
-            timerSeconds--
-        }
-        canResend = true
-    }
 
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(GradientTop, GradientBottom)
@@ -93,10 +124,10 @@ fun VerifyOtpScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .shadow(
-                        elevation   = 12.dp,
-                        shape       = MaterialTheme.shapes.small,
+                        elevation = 12.dp,
+                        shape = MaterialTheme.shapes.small,
                         ambientColor = Color(0x40000000),
-                        spotColor   = Color(0x40000000)
+                        spotColor = Color(0x40000000)
                     ),
                 shape  = MaterialTheme.shapes.small,
                 colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -132,7 +163,6 @@ fun VerifyOtpScreen(
                     // ── OTP Boxes ─────────────────────────────────────────────
                     OtpInputRow(
                         otpValue       = otpValue,
-                        focusRequester = focusRequester,
                         onValueChange  = { if (it.length <= 6) otpValue = it },
                         enabled        = !isVerifying
                     )
@@ -144,35 +174,17 @@ fun VerifyOtpScreen(
                         text      = stringResource(R.string.verify_otp_btn_verify),
                         enabled   = otpValue.length == 6 && !isVerifying,
                         style     = OtpButtonStyle.LIGHT,
-                        onClick   = {
-                            scope.launch {
-                                isVerifying = true
-                                delay(2000L)
-                                isVerifying = false
-                                onVerifyOtp(otpValue)
-                            }
-                        }
+                        onClick   = { onVerifyOtp(otpValue) }
                     )
 
                     // ── Resend OTP ────────────────────────────────────────────
                     OtpActionButton(
-                        text    = if (canResend) stringResource(R.string.verify_otp_btn_resend)
-                        else           stringResource(R.string.verify_otp_btn_resend_timer, formatTimer(timerSeconds)),
-                        enabled = canResend && !isVerifying,
-                        style   = OtpButtonStyle.LIGHT,
-                        onClick = {
-                            scope.launch {
-                                canResend    = false
-                                timerSeconds = 41
-                                otpValue     = ""
-                                onResendOtp()
-                                while (timerSeconds > 0) {
-                                    delay(1000L)
-                                    timerSeconds--
-                                }
-                                canResend = true
-                            }
-                        }
+                        text    = otpResendAfterSeconds?.let { seconds ->
+                            stringResource(R.string.verify_otp_btn_resend_timer, formatTimer(seconds))
+                        } ?: stringResource(R.string.verify_otp_btn_resend),
+                        enabled = otpResendAfterSeconds == null && !isVerifying,
+                        style   = if (otpResendAfterSeconds == null) OtpButtonStyle.DARK else OtpButtonStyle.LIGHT,
+                        onClick = onResendOtp
                     )
 
                     // ── Edit Phone Number ─────────────────────────────────────
@@ -194,22 +206,19 @@ fun VerifyOtpScreen(
             message = stringResource(R.string.verify_otp_loading)
         )
     }
-
-    // Auto-focus the hidden text field on launch
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
 }
 
 // ── OTP input row ─────────────────────────────────────────────────────────────
 @Composable
 private fun OtpInputRow(
     otpValue       : String,
-    focusRequester : FocusRequester,
     onValueChange  : (String) -> Unit,
     enabled        : Boolean,
     otpLength      : Int = 6
 ) {
+    val softKeyboard = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+
     Box(contentAlignment = Alignment.Center) {
         // Hidden real text-field that captures keyboard input
         BasicTextField(
@@ -219,8 +228,8 @@ private fun OtpInputRow(
                     onValueChange(new)
             },
             modifier      = Modifier
-                .size(1.dp)          // invisible but focused
-                .focusRequester(focusRequester),
+                .size(1.dp)
+                .focusRequester(focusRequester),          // invisible but focused
             enabled       = enabled,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             cursorBrush   = SolidColor(Color.Transparent)
@@ -237,14 +246,19 @@ private fun OtpInputRow(
 
                 Box(
                     modifier = Modifier
-                        .size(width = 44.dp, height = 50.dp)
+                        .height(56.dp)
+                        .weight(1f)
                         .clip(MaterialTheme.shapes.small)
                         .background(MaterialTheme.colorScheme.surface)
                         .border(
                             width = if (isFilled) 2.dp else 1.5.dp,
                             color = if (isFilled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                             shape = MaterialTheme.shapes.small
-                        ),
+                        )
+                        .clickable(onClick = {
+                            focusRequester.requestFocus()
+                            softKeyboard?.show()
+                        }),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -317,7 +331,12 @@ private fun formatTimer(seconds: Int): String {
 @Composable
 private fun VerifyOtpEmptyPreview() {
     BookNestTheme {
-        VerifyOtpScreen()
+        VerifyOtpScreen(
+            isVerifying = false,
+            onVerifyOtp = {},
+            onResendOtp = {},
+            onEditPhone = {}
+        )
     }
 }
 
@@ -325,6 +344,11 @@ private fun VerifyOtpEmptyPreview() {
 @Composable
 private fun VerifyOtpFilledPreview() {
     BookNestTheme {
-        VerifyOtpScreen()
+        VerifyOtpScreen(
+            isVerifying = false,
+            onVerifyOtp = {},
+            onResendOtp = {},
+            onEditPhone = {}
+        )
     }
 }

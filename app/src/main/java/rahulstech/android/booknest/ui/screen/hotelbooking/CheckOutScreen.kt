@@ -1,4 +1,4 @@
-package rahulstech.android.booknest.ui.screen.checkout
+package rahulstech.android.booknest.ui.screen.hotelbooking
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,15 +38,15 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import rahulstech.android.booknest.R
-import rahulstech.android.booknest.ui.component.ScreenTopBar
-import rahulstech.android.booknest.data.model.BookingDate
+import rahulstech.android.booknest.auth.Authenticator
 import rahulstech.android.booknest.data.model.HotelDetails
+import rahulstech.android.booknest.data.model.Resource
 import rahulstech.android.booknest.data.model.RoomDetails
 import rahulstech.android.booknest.data.model.UserDetails
+import rahulstech.android.booknest.ui.component.ScreenTopBar
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 import rahulstech.android.booknest.util.formatIndian
 import rahulstech.android.booknest.util.sampleHotel
-import rahulstech.android.booknest.util.sampleSelectedRooms
 import rahulstech.android.booknest.util.sampleUserDetails
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -53,52 +54,83 @@ import java.time.format.DateTimeFormatter
 private val DISPLAY_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CheckOutScreen(
-    hotel: HotelDetails,
-    selectedRooms: List<RoomDetails>,
-    bookingDate: BookingDate,
-    user: UserDetails,
-    onBack: () -> Unit,
-    onLogout: () -> Unit,
-    onRemoveRoom: (RoomDetails) -> Unit
+fun CheckoutRoute(
+    params: RoomSearchParameter,
+    onExit: ()-> Unit,
+    onLogout: ()-> Unit,
+    viewModel: BookHotelViewModel
 ) {
+    val hotelResource by viewModel.hotelDetailsResource
+    val currentUser by Authenticator.instance.currentUser
+
     Scaffold(
         topBar = {
             ScreenTopBar(
                 title = stringResource(R.string.checkout_screen_title),
                 showNavUp = true,
-                onNavUp = onBack,
+                onNavUp = onExit,
                 showLogoutAction = true,
                 onLogout = onLogout
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Hotel Summary Card
+        CheckOutScreen(
+            hotel = (hotelResource as Resource.Success<HotelDetails?>).data!!,
+            selectedRoomIds = viewModel.selectedRoomIds,
+            params = params,
+            user = currentUser ?: UserDetails(),
+            onRemoveRoom = { viewModel.unselectRoom(it.id) },
+            modifier = Modifier.padding(paddingValues)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CheckOutScreen(
+    hotel: HotelDetails,
+    selectedRoomIds: Set<String>,
+    params: RoomSearchParameter,
+    user: UserDetails,
+    onRemoveRoom: (RoomDetails) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val selectedRooms = hotel.rooms.filter { it.id in selectedRoomIds }
+    val numberOfDays = params.calculateDays()
+
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Hotel Summary Card
+        item(key = hotel.id) {
             HotelSummaryCard(hotel)
+        }
 
-            // Booking Details
-            BookingDetailsSection(bookingDate)
+        // Booking Details
+        item {
+            BookingDetailsSection(params.checkIn, params.checkOut, numberOfDays)
+        }
 
-            // Selected Rooms
-            selectedRooms.forEach { room ->
-                RoomItem(room = room, onRemove = { onRemoveRoom(room) })
-            }
+        // Selected Rooms
+        items(items = selectedRooms, key = { it.id }) { room ->
+            RoomItem(
+                room = room,
+                onRemove = { onRemoveRoom(room) }
+            )
+        }
 
-            // Price Breakup
-            PriceBreakupSection(selectedRooms, bookingDate.numberOfDays)
+        // Price Breakup
+        item {
+            PriceBreakupSection(selectedRooms, numberOfDays)
+        }
 
-            // User Details
+        // User Details
+        item {
             UserDetailsSection(user)
         }
     }
@@ -157,7 +189,7 @@ private fun HotelSummaryCard(hotel: HotelDetails) {
 }
 
 @Composable
-private fun BookingDetailsSection(bookingDate: BookingDate) {
+private fun BookingDetailsSection(checkIn: LocalDate, checkOut: LocalDate, numberOfDays: Int) {
     Column {
         Text(
             text = stringResource(R.string.checkout_booking_details),
@@ -179,7 +211,7 @@ private fun BookingDetailsSection(bookingDate: BookingDate) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = bookingDate.checkInDate.format(DISPLAY_DATE_FORMAT),
+                    text = checkIn.format(DISPLAY_DATE_FORMAT),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                 )
             }
@@ -189,7 +221,7 @@ private fun BookingDetailsSection(bookingDate: BookingDate) {
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.checkout_screen_days, bookingDate.numberOfDays),
+                    text = stringResource(R.string.checkout_screen_days, numberOfDays),
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -203,7 +235,7 @@ private fun BookingDetailsSection(bookingDate: BookingDate) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = bookingDate.checkOutDate.format(DISPLAY_DATE_FORMAT),
+                    text = checkOut.format(DISPLAY_DATE_FORMAT),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                 )
             }
@@ -361,14 +393,12 @@ private fun CheckOutScreenPreview() {
     BookNestTheme {
         CheckOutScreen(
             hotel = sampleHotel,
-            selectedRooms = sampleSelectedRooms,
-            bookingDate = BookingDate(
-                checkInDate = LocalDate.of(2024, 6, 19),
-                checkOutDate = LocalDate.of(2024, 6, 21)
+            selectedRoomIds = setOf("1","3"),
+            params = RoomSearchParameter(
+                checkIn = LocalDate.of(2026,5,19),
+                checkOut = LocalDate.of(2026,5,26)
             ),
             user = sampleUserDetails,
-            onBack = {},
-            onLogout = {},
             onRemoveRoom = {}
         )
     }

@@ -1,4 +1,4 @@
-package rahulstech.android.booknest.ui.screen.findroom
+package rahulstech.android.booknest.ui.screen.hotelbooking
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,6 +38,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -66,7 +67,6 @@ import coil.compose.AsyncImage
 import rahulstech.android.booknest.R
 import rahulstech.android.booknest.data.model.Place
 import rahulstech.android.booknest.data.model.PlaceName
-import rahulstech.android.booknest.ui.common.RoomSearchParameter
 import rahulstech.android.booknest.ui.component.DatePickerComposableDialog
 import rahulstech.android.booknest.ui.component.ScreenTopBar
 import rahulstech.android.booknest.ui.theme.BookNestTheme
@@ -81,17 +81,13 @@ import java.time.format.DateTimeFormatter
 
 private val DATE_FORMAT = DateTimeFormatter.ofPattern("d/M/yyyy")
 
-private const val TAG = "FindRoomScreen"
-
-
-
 @Composable
 fun FindRoomRoute(
     onLogout: ()-> Unit,
     onViewAllPlaces: ()-> Unit,
     onViewPlace: (String)-> Unit,
     onSearch: (RoomSearchParameter) -> Unit,
-    viewModel: FindRoomViewModel = viewModel()
+    viewModel: BookHotelViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState
 
@@ -247,9 +243,10 @@ private fun LocationChooser(
     ExposedDropdownMenuBox(
         modifier = Modifier.fillMaxWidth(),
         expanded = expanded,
-        onExpandedChange = {}
+        onExpandedChange = { expanded = it }
     ) {
         PickerTextField(
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
             label    = stringResource(R.string.find_room_label_location),
             value    = location?.name ?: "",
             leadingIcon = Icons.Default.LocationOn,

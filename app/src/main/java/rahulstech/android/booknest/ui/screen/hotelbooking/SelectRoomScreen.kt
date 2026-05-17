@@ -1,4 +1,4 @@
-package rahulstech.android.booknest.ui.screen.selectroom
+package rahulstech.android.booknest.ui.screen.hotelbooking
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
@@ -31,8 +31,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +52,7 @@ import rahulstech.android.booknest.data.model.Amenity
 import rahulstech.android.booknest.data.model.HotelDetails
 import rahulstech.android.booknest.data.model.Resource
 import rahulstech.android.booknest.data.model.RoomDetails
-import rahulstech.android.booknest.ui.common.RoomSearchParameter
+import rahulstech.android.booknest.ui.screen.hotelbooking.RoomSearchParameter
 import rahulstech.android.booknest.ui.component.ScreenTopBar
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 import rahulstech.android.booknest.util.formatIndian
@@ -68,7 +66,8 @@ fun SelectRoomRoute(
     params: RoomSearchParameter,
     onExit: ()-> Unit,
     onLogout: ()-> Unit,
-    viewModel: SelectRoomViewModel = viewModel()
+    onCheckout: () -> Unit,
+    viewModel: BookHotelViewModel = viewModel()
 ) {
     Log.d(TAG, "params = $params")
 
@@ -76,7 +75,7 @@ fun SelectRoomRoute(
         viewModel.findHotel(hotelId)
     }
 
-    val hotelResource by viewModel.hotelResource
+    val hotelResource by viewModel.hotelDetailsResource
 
     Scaffold(
         topBar = {
@@ -90,11 +89,11 @@ fun SelectRoomRoute(
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier.padding(paddingValues).fillMaxWidth().padding(16.dp)
+            modifier = Modifier.padding(paddingValues).fillMaxWidth().padding(16.dp),
+            contentAlignment = Alignment.TopCenter
         ) {
             when(hotelResource) {
                 is Resource.Loading -> {
-                    // TODO: show skeleton
                     Log.d(TAG,"loading hotel[$hotelId]")
                     CircularProgressIndicator(modifier = Modifier.size(size = 64.dp))
                 }
@@ -106,10 +105,17 @@ fun SelectRoomRoute(
                         onExit()
                     }
                     else {
+                        val selectedRoomIds = viewModel.selectedRoomIds
                         SelectRoomScreen(
                             hotel = hotel,
+                            selectedRoomIds = selectedRoomIds,
                             numberOfDays = params.calculateDays(),
-                            onCheckout = { }
+                            onCheckout = {
+                                onCheckout()
+                            },
+                            onToggleRoomSelection = {
+                                viewModel.toggleRoomSelection(it)
+                            }
                         )
                     }
                 }
@@ -137,14 +143,15 @@ fun SelectRoomRoute(
 @Composable
 fun SelectRoomScreen(
     hotel: HotelDetails,
+    selectedRoomIds: Set<String>,
     numberOfDays: Int,
-    onCheckout: (List<RoomDetails>) -> Unit
+    onCheckout: () -> Unit,
+    onToggleRoomSelection: (String)-> Unit,
 ) {
     Log.d(TAG, "select rooms of hotel ${hotel.id}")
+
     // Track which room IDs are selected
-    val selectedRoomIds = remember { mutableStateListOf<String>() }
-    val selectedRooms = hotel.rooms.filter { it.id in selectedRoomIds }
-    val totalCost = selectedRooms.sumOf { it.pricePerDay } * numberOfDays
+    val totalCost = hotel.rooms.filter { it.id in selectedRoomIds }.sumOf { it.pricePerDay } * numberOfDays
     val showBottomBar = selectedRoomIds.isNotEmpty()
 
     LazyColumn(
@@ -236,14 +243,10 @@ fun SelectRoomScreen(
 
         // Room cards
         items(hotel.rooms, key = { it.id }) { room ->
-            val isSelected = room.id in selectedRoomIds
             RoomCard(
                 room = room,
-                isSelected = isSelected,
-                onToggle = {
-                    if (isSelected) selectedRoomIds.remove(room.id)
-                    else selectedRoomIds.add(room.id)
-                }
+                isSelected = room.id in selectedRoomIds,
+                onToggle = { onToggleRoomSelection(room.id) }
             )
         }
     }
@@ -262,7 +265,7 @@ fun SelectRoomScreen(
                 roomCount = selectedRoomIds.size,
                 days = numberOfDays,
                 totalCost = totalCost,
-                onCheckout = { onCheckout(selectedRooms) }
+                onCheckout = { onCheckout() }
             )
         }
     }
@@ -507,8 +510,10 @@ fun SelectRoomScreenPreview() {
     BookNestTheme {
         SelectRoomScreen(
             hotel = sampleHotel,
+            selectedRoomIds = emptySet(),
             numberOfDays = 2,
-            onCheckout = {}
+            onCheckout = {},
+            onToggleRoomSelection = {}
         )
     }
 }
