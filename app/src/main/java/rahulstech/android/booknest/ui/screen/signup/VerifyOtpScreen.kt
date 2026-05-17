@@ -61,24 +61,30 @@ private val LightButtonText @Composable get() = MaterialTheme.colorScheme.onPrim
 @Composable
 fun VerifyOtpRoute(
     onExit: ()-> Unit,
+    onNavigateToMain: ()-> Unit,
     viewModel: AuthViewModel
 ) {
     val uiState by viewModel.signUpUiState
 
-    VerifyOtpScreen(
-        isVerifying = uiState.isLoading,
-        otpResendAfterSeconds = viewModel.otpResendAfterSeconds,
-        onVerifyOtp = { otp ->
-            viewModel.verifyOtp(otp)
-        },
-        onResendOtp = {
-            viewModel.resendOtp()
-        },
-        onEditPhone = {
-            viewModel.resetCodeSentState()
-            onExit()
-        }
-    )
+    if (!uiState.isLoading && uiState.isSuccess) {
+        onNavigateToMain()
+    }
+    else {
+        VerifyOtpScreen(
+            isVerifying = uiState.isLoading,
+            otpResendAfterSeconds = viewModel.otpResendAfterSeconds,
+            onVerifyOtp = { otp ->
+                viewModel.verifyOtp(otp)
+            },
+            onResendOtp = {
+                viewModel.resendOtp()
+            },
+            onEditPhone = {
+                viewModel.resetCodeSentState()
+                onExit()
+            }
+        )
+    }
 }
 
 // ── Screen ────────────────────────────────────────────────────────────────────

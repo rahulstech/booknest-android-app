@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">BookNest</string>
+    <string name="splash_subtitle">Your perfect hotel booking App</string>
 
     <!-- common labels -->
     <string name="logout">Logout</string>
@@ -42,6 +43,7 @@
     <string name="find_room_view_all">VIEW ALL</string>
     <string name="find_room_dialog_check_in_title">Check In</string>
     <string name="find_room_dialog_check_out_title">Check Out</string>
+    <string name="please_select_place">Please select a place</string>
 
     <!-- DatePicker Dialog -->
     <string name="date_picker_default_title">Choose Date</string>
@@ -92,5 +94,14 @@
 
     <!-- Place Screen -->
     <string name="places_title">Places</string>
+
+    <!-- FAQ Screen -->
+    <string name="faq_title">FAQs</string>
+    <string name="faq_question_1">1. What happens if I enter the wrong OTP during account verification?</string>
+    <string name="faq_answer_1">If you enter the wrong OTP, you will be shown an error message and will have to re-enter the correct code. Please mention the correct OTP that you receive on your registered mobile number via SMS to proceed with the verification process successfully.</string>
+    <string name="faq_question_2">2. Where can I contact if I face any issues while booking a hotel room using the app?</string>
+    <string name="faq_answer_2">If you face any issues during your booking process you can reach out to our customer support team by at dummy@book_nest.com or call us at 9999999999.</string>
+    <string name="faq_question_3">Is my personal information secure when using this app?</string>
+    <string name="faq_answer_3">Yes, we value the trust of our users and prioritise the security of their personal information. All your data, including personal details and booking information is secure with us and protected using encryption protocols to ensure confidentiality.</string>
 
 </resources>

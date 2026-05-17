@@ -1,5 +1,6 @@
 package rahulstech.android.booknest.ui.screen.hotelbooking
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -56,6 +57,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -90,6 +92,7 @@ fun FindRoomRoute(
     viewModel: BookHotelViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState
+    val context = LocalContext.current
 
     FindRoomScreen(
         uiState = uiState,
@@ -98,7 +101,14 @@ fun FindRoomRoute(
         onChangeCheckOutDate = viewModel::updateCheckOutDate,
         onChangeRoom = viewModel::updateRooms,
         onLogout = onLogout,
-        onSearch = onSearch,
+        onSearch = {
+            if (uiState.location == null) {
+                Toast.makeText(context,R.string.please_select_place, Toast.LENGTH_LONG).show()
+            }
+            else {
+                onSearch(it)
+            }
+        },
         onViewAllPlaces = onViewAllPlaces,
         onViewPlace = onViewPlace
     )
@@ -195,6 +205,7 @@ fun FindRoomScreen(
                             )
                             onSearch(params)
                         },
+                        enabled = uiState.location != null,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
@@ -246,7 +257,7 @@ private fun LocationChooser(
         onExpandedChange = { expanded = it }
     ) {
         PickerTextField(
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            textFieldModifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
             label    = stringResource(R.string.find_room_label_location),
             value    = location?.name ?: "",
             leadingIcon = Icons.Default.LocationOn,
@@ -260,7 +271,9 @@ private fun LocationChooser(
                     tint               = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
-            onClick  = { expanded = !expanded },
+            onClick  = null,
+            enabled = true,
+            readOnly = true
         )
         ExposedDropdownMenu(
             expanded         = expanded,
@@ -408,8 +421,11 @@ private fun PickerTextField(
     value: String,
     leadingIcon: ImageVector,
     modifier: Modifier = Modifier,
+    textFieldModifier: Modifier = Modifier,
     trailingIcon: @Composable (() -> Unit)? = null,
-    onClick: () -> Unit = {},
+    onClick: (() -> Unit)? = null,
+    readOnly: Boolean = true,
+    enabled: Boolean = false,
 ) {
     val hasValue = value.isNotBlank()
 
@@ -417,15 +433,15 @@ private fun PickerTextField(
         TextField(
             value         = value,
             onValueChange = {},
-            modifier      = Modifier.fillMaxWidth(),
-            enabled       = false,      // no keyboard, no cursor, no focus ring
+            modifier      = textFieldModifier.fillMaxWidth(),
+            enabled       = enabled,
+            readOnly      = readOnly,
             singleLine    = true,
             label         = { Text(text = label, style = MaterialTheme.typography.bodyLarge) },
             leadingIcon   = {
                 Icon(
                     imageVector        = leadingIcon,
                     contentDescription = null,
-                    tint               = MaterialTheme.colorScheme.primary,
                 )
             },
             trailingIcon  = trailingIcon,
@@ -433,28 +449,49 @@ private fun PickerTextField(
                 disabledContainerColor   = Color.Transparent,
                 focusedContainerColor    = Color.Transparent,
                 unfocusedContainerColor  = Color.Transparent,
+                errorContainerColor      = Color.Transparent,
+                
                 disabledIndicatorColor   = MaterialTheme.colorScheme.outlineVariant,
                 focusedIndicatorColor    = MaterialTheme.colorScheme.primary,
                 unfocusedIndicatorColor  = MaterialTheme.colorScheme.outlineVariant,
+                errorIndicatorColor      = MaterialTheme.colorScheme.error,
+
                 disabledTextColor        = MaterialTheme.colorScheme.onSurface,
-                disabledLabelColor       = if (hasValue) MaterialTheme.colorScheme.primary
-                                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                focusedTextColor         = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor       = MaterialTheme.colorScheme.onSurface,
+                errorTextColor           = MaterialTheme.colorScheme.onSurface,
+
+                disabledLabelColor       = when {
+                    hasValue -> MaterialTheme.colorScheme.primary
+                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                },
                 focusedLabelColor        = MaterialTheme.colorScheme.primary,
                 unfocusedLabelColor      = MaterialTheme.colorScheme.onSurfaceVariant,
+                errorLabelColor          = MaterialTheme.colorScheme.error,
+
                 disabledLeadingIconColor  = MaterialTheme.colorScheme.primary,
+                focusedLeadingIconColor   = MaterialTheme.colorScheme.primary,
+                unfocusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+                errorLeadingIconColor     = MaterialTheme.colorScheme.error,
+
                 disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                focusedTrailingIconColor  = MaterialTheme.colorScheme.onSurfaceVariant,
+                unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                errorTrailingIconColor    = MaterialTheme.colorScheme.error,
             ),
         )
 
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onClick,
-                )
-        )
+        if (onClick != null) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onClick,
+                    )
+            )
+        }
     }
 }
 

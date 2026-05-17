@@ -50,10 +50,8 @@ import rahulstech.android.booknest.R
 import rahulstech.android.booknest.ui.component.LoadingOverlay
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 
-// ── Brand colors ──────────────────────────────────────────────────────────────
-private val GradientTop    = Color(0xFF1A8FB5)   // light sky-blue
-private val GradientBottom = Color( 0xFF64C8F0)   // deeper teal-blue
-
+import rahulstech.android.booknest.ui.theme.brandGradientBottom
+import rahulstech.android.booknest.ui.theme.brandGradientTop
 
 @Composable
 fun SignupRoute(
@@ -95,7 +93,7 @@ fun SignUpScreen(
             .imePadding()
             .fillMaxSize()
             .background(brush = Brush.verticalGradient(
-                colors = listOf(GradientTop, GradientBottom)
+                colors = listOf(brandGradientTop, brandGradientBottom)
             )),
         contentAlignment = Alignment.Center
     ) {

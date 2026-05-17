@@ -22,7 +22,9 @@ sealed interface AuthGraphRoute {
 }
 
 @Composable
-fun AuthRoute() {
+fun AuthRoute(
+    onNavigateToMain: ()->Unit,
+) {
     val navController = rememberNavController()
 
     NavHost(
@@ -47,6 +49,7 @@ fun AuthRoute() {
             VerifyOtpRoute(
                 viewModel = viewModel,
                 onExit = { navController.popBackStack() },
+                onNavigateToMain = onNavigateToMain
             )
         }
     }

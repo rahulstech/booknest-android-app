@@ -18,6 +18,7 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
 import rahulstech.android.booknest.acitivity.BottomNavDestinations
+import rahulstech.android.booknest.ui.screen.faq.FAQRoute
 import rahulstech.android.booknest.ui.screen.hotelbooking.BookHotelViewModel
 import rahulstech.android.booknest.ui.screen.hotelbooking.CheckoutRoute
 import rahulstech.android.booknest.ui.screen.hotelbooking.FindRoomRoute
@@ -116,7 +117,9 @@ fun MainRoute(
             }
 
             composable<MainGraphRoute.FAQ> {
-                // TODO: add Faq route
+                FAQRoute(
+                    onLogout = onLogout
+                )
             }
         }
     }

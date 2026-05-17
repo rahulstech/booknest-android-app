@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.navigation.compose.NavHost
@@ -21,6 +20,7 @@ import rahulstech.android.booknest.navigation.AuthRoute
 import rahulstech.android.booknest.navigation.MainGraphRoute
 import rahulstech.android.booknest.navigation.MainRoute
 import rahulstech.android.booknest.navigation.RootGraphRoute
+import rahulstech.android.booknest.ui.screen.splash.SplashScreen
 import rahulstech.android.booknest.ui.theme.BookNestTheme
 
 class MainActivity : ComponentActivity() {
@@ -30,8 +30,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BookNestTheme {
-                val currentUser by Authenticator.instance.currentUser
-                MainScreen(currentUser != null)
+                MainScreen()
             }
         }
     }
@@ -39,20 +38,48 @@ class MainActivity : ComponentActivity() {
 
 @PreviewScreenSizes
 @Composable
-fun MainScreen(isLoggedIn: Boolean = true) {
+fun MainScreen() {
     val navController = rememberNavController()
 
     fun onLogout() {
         Authenticator.instance.logout()
+        navController.navigate(RootGraphRoute.Auth) {
+            popUpTo(RootGraphRoute.Main) {
+                inclusive = true
+            }
+        }
     }
 
     NavHost(
         navController = navController,
-        startDestination = if (isLoggedIn) RootGraphRoute.Main else RootGraphRoute.Auth
+        startDestination = RootGraphRoute.Splash
     ) {
 
+        composable<RootGraphRoute.Splash> {
+            SplashScreen(
+                onNavigateToMain = {
+                    navController.navigate(RootGraphRoute.Main) {
+                        popUpTo(RootGraphRoute.Splash) { inclusive = true }
+                    }
+                },
+                onNavigateToAuth = {
+                    navController.navigate(RootGraphRoute.Auth) {
+                        popUpTo(RootGraphRoute.Splash) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable<RootGraphRoute.Auth> {
-            AuthRoute()
+            AuthRoute(
+                onNavigateToMain = {
+                    navController.navigate(RootGraphRoute.Main) {
+                        popUpTo(RootGraphRoute.Auth){
+                            inclusive = true
+                        }
+                    }
+                }
+            )
         }
 
         composable<RootGraphRoute.Main> {
